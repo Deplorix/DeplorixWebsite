@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { divisions } from "@/data/divisions";
@@ -23,6 +23,10 @@ type Props = {
 const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero" }: Props) => {
   const [internalIndex, setInternalIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const pointerBounds = useRef<DOMRect | null>(null);
+  const pointerFrame = useRef(0);
+  const pendingPointer = useRef({ x: 0, y: 0 });
+  const reduceMotion = useReducedMotion();
 
   const controlledIndex = activeId ? divisions.findIndex((d) => d.id === activeId) : -1;
   const index = controlledIndex >= 0 ? controlledIndex : internalIndex;
@@ -33,10 +37,10 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
   const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [-10, 12]), { stiffness: 120, damping: 18 });
 
   useEffect(() => {
-    if (!autoRotate) return;
+    if (!autoRotate || reduceMotion) return;
     const t = setInterval(() => setInternalIndex((i) => (i + 1) % divisions.length), 4600);
     return () => clearInterval(t);
-  }, [autoRotate]);
+  }, [autoRotate, reduceMotion]);
 
   const active = divisions[index];
   const work = projectsForDivision(active.id);
@@ -49,13 +53,23 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
 
   const handleMove = (e: React.MouseEvent) => {
     const el = containerRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    mx.set((e.clientX - r.left) / r.width - 0.5);
-    my.set((e.clientY - r.top) / r.height - 0.5);
+    if (!el || reduceMotion) return;
+    pointerBounds.current ??= el.getBoundingClientRect();
+    pendingPointer.current = { x: e.clientX, y: e.clientY };
+    if (pointerFrame.current) return;
+    pointerFrame.current = window.requestAnimationFrame(() => {
+      pointerFrame.current = 0;
+      const bounds = pointerBounds.current;
+      if (!bounds) return;
+      mx.set((pendingPointer.current.x - bounds.left) / bounds.width - 0.5);
+      my.set((pendingPointer.current.y - bounds.top) / bounds.height - 0.5);
+    });
   };
 
   const reset = () => {
+    pointerBounds.current = null;
+    if (pointerFrame.current) window.cancelAnimationFrame(pointerFrame.current);
+    pointerFrame.current = 0;
     mx.set(0);
     my.set(0);
   };
@@ -72,12 +86,12 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
       <div className="absolute w-64 h-64 md:w-72 md:h-72 rounded-full bg-secondary blur-3xl opacity-70" aria-hidden />
 
       <motion.div
-        initial={{ opacity: 0, y: 60, rotateY: 24 }}
-        animate={{ opacity: 1, y: [0, -14, 0], rotateY: 0 }}
+        initial={reduceMotion ? false : { opacity: 0, y: 60, rotateY: 24 }}
+        animate={{ opacity: 1, y: reduceMotion ? 0 : [0, -14, 0], rotateY: 0 }}
         transition={{
           opacity: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
           rotateY: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
-          y: { duration: 6, repeat: Infinity, ease: "easeInOut" },
+          y: { duration: reduceMotion ? 0 : 6, repeat: reduceMotion ? 0 : Infinity, ease: "easeInOut" },
         }}
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
         className="relative"
@@ -200,8 +214,8 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
 
         {/* Floating stat chips */}
         <motion.div
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+          animate={{ y: reduceMotion ? 0 : [0, -10, 0] }}
+          transition={{ duration: reduceMotion ? 0 : 5, repeat: reduceMotion ? 0 : Infinity, ease: "easeInOut", delay: reduceMotion ? 0 : 0.6 }}
           style={{ transform: "translateZ(60px)" }}
           className="absolute -left-10 top-24 hidden lg:block glass-card px-4 py-3"
         >
@@ -209,8 +223,8 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
           <p className="text-[11px] text-muted-foreground">Divisions</p>
         </motion.div>
         <motion.div
-          animate={{ y: [0, 12, 0] }}
-          transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
+          animate={{ y: reduceMotion ? 0 : [0, 12, 0] }}
+          transition={{ duration: reduceMotion ? 0 : 5.5, repeat: reduceMotion ? 0 : Infinity, ease: "easeInOut", delay: reduceMotion ? 0 : 1.2 }}
           style={{ transform: "translateZ(60px)" }}
           className="absolute -right-10 bottom-28 hidden lg:block glass-card px-4 py-3"
         >

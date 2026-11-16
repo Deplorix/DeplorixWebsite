@@ -11,10 +11,19 @@ export async function getDb() {
   if (!uri) throw new Error("MONGODB_URI environment variable is not defined");
 
   if (!cachedClient) {
-    cachedClient = new MongoClient(uri, {
+    const nextClient = new MongoClient(uri, {
       maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
     });
-    await cachedClient.connect();
+    try {
+      await nextClient.connect();
+      cachedClient = nextClient;
+    } catch (error) {
+      await nextClient.close().catch(() => undefined);
+      cachedClient = null;
+      cachedDb = null;
+      throw error;
+    }
   }
 
   cachedDb = cachedClient.db(dbName);

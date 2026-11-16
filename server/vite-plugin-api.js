@@ -70,7 +70,6 @@ export function apiMiddlewarePlugin() {
               success: true,
               message: "Inquiry saved successfully",
               id: saved.id,
-              data: saved,
             });
           }
 

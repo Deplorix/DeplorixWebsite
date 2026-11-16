@@ -211,6 +211,12 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .deferred-section-placeholder {
+    min-height: var(--deferred-tablet-height) !important;
+  }
+}
+
 @media (max-width: 767px) {
   .deferred-section-placeholder {
     min-height: var(--deferred-mobile-height) !important;

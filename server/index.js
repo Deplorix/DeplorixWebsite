@@ -41,7 +41,7 @@ app.post("/api/inquiry", async (req, res) => {
     const inquiry = prepareInquiry(req.body || {});
     const saved = await saveInquiry(inquiry);
 
-    res.status(201).json({ success: true, message: "Inquiry saved successfully", id: saved.id, data: saved });
+    res.status(201).json({ success: true, message: "Inquiry saved successfully", id: saved.id });
   } catch (err) {
     console.error("Error saving inquiry to MongoDB:", err);
     const response = publicInquiryError(err);

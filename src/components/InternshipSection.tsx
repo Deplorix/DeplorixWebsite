@@ -41,6 +41,14 @@ const outcomes = [
 
 const MAX_RESUME_BYTES = 3 * 1024 * 1024; // Keep the encoded request below common serverless limits.
 
+const resumeMimeType = (file: File) => {
+  if (file.type) return file.type;
+  const name = file.name.toLowerCase();
+  if (name.endsWith(".docx")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  if (name.endsWith(".doc")) return "application/msword";
+  return "application/pdf";
+};
+
 const fileToBase64 = (file: File) =>
   new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -132,6 +140,7 @@ const InternshipSection = () => {
     setLastWaUrl(waUrl);
 
     const whatsappWindow = window.open("about:blank", "_blank");
+    if (whatsappWindow) whatsappWindow.opener = null;
 
     try {
       const resumeData = resume ? await fileToBase64(resume) : undefined;
@@ -141,7 +150,7 @@ const InternshipSection = () => {
         attachInWhatsApp: sendInChat,
         resume: resume && resumeData ? {
           name: resume.name,
-          type: resume.type || "application/pdf",
+          type: resumeMimeType(resume),
           data: resumeData,
         } : null,
       });

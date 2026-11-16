@@ -43,7 +43,7 @@ describe("prepareInternshipApplication", () => {
     }
   });
 
-  it("rejects disguised attachment types", () => {
+  it("rejects disguised attachment types and invalid MIME values", () => {
     expect(() =>
       prepareInternshipApplication({
         ...baseApplication,
@@ -54,5 +54,29 @@ describe("prepareInternshipApplication", () => {
         },
       }),
     ).toThrow("Resume must be a PDF or Word document");
+
+    expect(() =>
+      prepareInternshipApplication({
+        ...baseApplication,
+        resume: {
+          name: "resume.pdf",
+          type: 123,
+          data: "dGVzdA==",
+        },
+      }),
+    ).toThrow("Resume type is invalid");
+  });
+
+  it("checks the uploaded file signature", () => {
+    expect(() =>
+      prepareInternshipApplication({
+        ...baseApplication,
+        resume: {
+          name: "resume.pdf",
+          type: "application/pdf",
+          data: "dGVzdA==",
+        },
+      }),
+    ).toThrow("Resume file contents do not match");
   });
 });

@@ -84,13 +84,19 @@ const Navbar = () => {
     const menuButton = menuButtonRef.current;
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     window.dispatchEvent(new CustomEvent("deplorix:nav-open", { detail: mobileOpen }));
-    const backgroundRegions = [document.querySelector("main"), document.querySelector("footer")].filter(
-      (region): region is Element => Boolean(region),
-    );
-    backgroundRegions.forEach((region) => {
-      if (mobileOpen) region.setAttribute("inert", "");
-      else region.removeAttribute("inert");
-    });
+    const backgroundRegions = () =>
+      [document.querySelector("main"), document.querySelector("footer")].filter(
+        (region): region is Element => Boolean(region),
+      );
+    const syncBackgroundRegions = () => {
+      backgroundRegions().forEach((region) => {
+        if (mobileOpen) region.setAttribute("inert", "");
+        else region.removeAttribute("inert");
+      });
+    };
+    syncBackgroundRegions();
+    const regionObserver = new MutationObserver(syncBackgroundRegions);
+    if (mobileOpen) regionObserver.observe(document.body, { childList: true, subtree: true });
 
     const focusableElements = () =>
       Array.from(
@@ -128,7 +134,8 @@ const Navbar = () => {
 
     return () => {
       document.body.style.overflow = "";
-      backgroundRegions.forEach((region) => region.removeAttribute("inert"));
+      regionObserver.disconnect();
+      backgroundRegions().forEach((region) => region.removeAttribute("inert"));
       window.removeEventListener("keydown", handleMenuKeys);
       if (focusFrame) window.cancelAnimationFrame(focusFrame);
       if (mobileOpen) menuButton?.focus();
@@ -145,7 +152,9 @@ const Navbar = () => {
       navigate(`/${href}`);
       return;
     }
-    document.querySelector(href)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const targetId = href.slice(1);
+    document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.history.replaceState(null, "", href);
   };
 
   const isActive = (href: string) =>

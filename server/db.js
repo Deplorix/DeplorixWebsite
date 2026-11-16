@@ -21,8 +21,15 @@ export async function getDb() {
   if (!client) {
     client = new MongoClient(uri, {
       maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
     });
-    clientPromise = client.connect();
+    clientPromise = client.connect().catch(async (error) => {
+      const failedClient = client;
+      client = undefined;
+      clientPromise = undefined;
+      await failedClient?.close().catch(() => undefined);
+      throw error;
+    });
   }
 
   await clientPromise;
@@ -64,10 +71,4 @@ export async function saveInternshipApplication(data) {
   };
   const result = await collection.insertOne(doc);
   return { id: result.insertedId, ...doc };
-}
-
-export async function getInquiries(limit = 100) {
-  const db = await getDb();
-  const collection = db.collection("inquiries");
-  return collection.find({}).sort({ createdAt: -1 }).limit(limit).toArray();
 }
