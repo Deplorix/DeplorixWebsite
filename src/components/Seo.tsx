@@ -45,16 +45,25 @@ const validateJsonLd = (blocks: JsonLd[]) => {
 const Seo = ({ title, description, canonical, jsonLd = [] }: Props) => {
   useEffect(() => {
     const prevTitle = document.title;
+    const previousMeta = new Map<Element, string | null>();
+    const rememberMeta = (selector: string, attr: string, value: string, content: string) => {
+      const existing = document.head.querySelector<HTMLMetaElement>(selector);
+      if (existing) previousMeta.set(existing, existing.getAttribute("content"));
+      const element = setMeta(selector, attr, value, content);
+      if (!existing) previousMeta.set(element, null);
+    };
     document.title = title;
 
-    setMeta('meta[name="description"]', "name", "description", description);
-    setMeta('meta[property="og:title"]', "property", "og:title", title);
-    setMeta('meta[property="og:description"]', "property", "og:description", description);
-    setMeta('meta[property="og:url"]', "property", "og:url", canonical);
-    setMeta('meta[name="twitter:title"]', "name", "twitter:title", title);
-    setMeta('meta[name="twitter:description"]', "name", "twitter:description", description);
+    rememberMeta('meta[name="description"]', "name", "description", description);
+    rememberMeta('meta[property="og:title"]', "property", "og:title", title);
+    rememberMeta('meta[property="og:description"]', "property", "og:description", description);
+    rememberMeta('meta[property="og:url"]', "property", "og:url", canonical);
+    rememberMeta('meta[name="twitter:title"]', "name", "twitter:title", title);
+    rememberMeta('meta[name="twitter:description"]', "name", "twitter:description", description);
 
     let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    const previousCanonical = link?.getAttribute("href") ?? null;
+    const createdCanonical = !link;
     if (!link) {
       link = document.createElement("link");
       link.rel = "canonical";
@@ -64,6 +73,12 @@ const Seo = ({ title, description, canonical, jsonLd = [] }: Props) => {
 
     return () => {
       document.title = prevTitle;
+      previousMeta.forEach((content, element) => {
+        if (content === null) element.remove();
+        else element.setAttribute("content", content);
+      });
+      if (createdCanonical) link?.remove();
+      else if (previousCanonical) link!.href = previousCanonical;
     };
   }, [title, description, canonical]);
 

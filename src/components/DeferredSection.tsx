@@ -4,6 +4,7 @@ type Props = {
   children: ReactNode;
   minHeight?: string;
   mobileMinHeight?: string;
+  tabletMinHeight?: string;
   rootMargin?: string;
   sectionId?: string;
 };
@@ -12,6 +13,7 @@ const DeferredSection = ({
   children,
   minHeight = "720px",
   mobileMinHeight,
+  tabletMinHeight,
   rootMargin = "700px 0px",
   sectionId,
 }: Props) => {
@@ -20,10 +22,12 @@ const DeferredSection = ({
   const placeholderStyle = {
     minHeight,
     "--deferred-mobile-height": mobileMinHeight ?? minHeight,
+    "--deferred-tablet-height": tabletMinHeight ?? mobileMinHeight ?? minHeight,
   } as React.CSSProperties;
   const suspenseFallbackStyle = {
     minHeight,
     "--deferred-mobile-height": mobileMinHeight ?? minHeight,
+    "--deferred-tablet-height": tabletMinHeight ?? mobileMinHeight ?? minHeight,
   } as React.CSSProperties;
 
   useEffect(() => {

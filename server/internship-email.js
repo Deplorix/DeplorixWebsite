@@ -47,6 +47,19 @@ function normalizeBase64(value) {
   return normalized;
 }
 
+function hasExpectedFileSignature(buffer, mimeType) {
+  if (mimeType === "application/pdf") {
+    return buffer.subarray(0, 5).toString("ascii") === "%PDF-";
+  }
+  if (mimeType === "application/msword") {
+    return buffer.subarray(0, 8).equals(Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]));
+  }
+  if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+    return buffer.subarray(0, 2).toString("ascii") === "PK";
+  }
+  return false;
+}
+
 export function prepareInternshipApplication(payload) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     throw createHttpError("Invalid application payload", 400, "VALIDATION_ERROR");
@@ -87,13 +100,29 @@ export function prepareInternshipApplication(payload) {
 
   if (resumeInput && typeof resumeInput === "object" && resumeInput.data) {
     const originalName = requiredText(resumeInput.name || "resume.pdf", "Resume file name", 180);
+    if (resumeInput.type !== undefined && typeof resumeInput.type !== "string") {
+      throw createHttpError("Resume type is invalid", 400, "VALIDATION_ERROR");
+    }
     const mimeType = (resumeInput.type || "application/pdf").toLowerCase();
     const lowerName = originalName.toLowerCase();
-    if (!ALLOWED_RESUME_EXTENSIONS.some((extension) => lowerName.endsWith(extension)) || !ALLOWED_RESUME_TYPES.has(mimeType)) {
+    const expectedExtensionByType = {
+      "application/pdf": ".pdf",
+      "application/msword": ".doc",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
+    };
+    if (
+      !ALLOWED_RESUME_EXTENSIONS.some((extension) => lowerName.endsWith(extension)) ||
+      !ALLOWED_RESUME_TYPES.has(mimeType) ||
+      !lowerName.endsWith(expectedExtensionByType[mimeType])
+    ) {
       throw createHttpError("Resume must be a PDF or Word document", 400, "VALIDATION_ERROR");
     }
     const base64 = normalizeBase64(resumeInput.data);
     const resumeBuffer = Buffer.from(base64, "base64");
+
+    if (!hasExpectedFileSignature(resumeBuffer, mimeType)) {
+      throw createHttpError("Resume file contents do not match the selected file type", 400, "VALIDATION_ERROR");
+    }
 
     if (resumeBuffer.length > MAX_RESUME_BYTES) {
       throw createHttpError("Resume must be 3 MB or smaller", 400, "VALIDATION_ERROR");
@@ -209,6 +238,9 @@ export async function sendInternshipApplicationEmail(application, resume) {
 
 export function publicInternshipError(error) {
   const statusCode = Number.isInteger(error?.statusCode) ? error.statusCode : 500;
-  const safeMessage = error?.message || "We could not process your application just now. Please try again.";
+  const safeMessage =
+    statusCode >= 400 && statusCode < 500
+      ? error?.message
+      : "We could not process your application just now. Please try again.";
   return { statusCode, body: { error: safeMessage, code: error?.code || "INTERNAL_ERROR" } };
 }

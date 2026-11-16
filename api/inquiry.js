@@ -21,7 +21,6 @@ export default async function handler(req, res) {
       success: true,
       message: "Inquiry saved successfully",
       id: saved.id,
-      data: saved,
     });
   } catch (err) {
     console.error("Vercel Serverless Error /api/inquiry:", err);

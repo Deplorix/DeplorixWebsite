@@ -1,28 +1,14 @@
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
+import {
+  VERIFY_BASE_URL,
+  formatDate,
+  formatDuration,
+  type Certificate,
+} from "./certificate-data";
 
-export type Certificate = {
-  certificate_id: string;
-  student_name: string;
-  domain: string;
-  college_name: string;
-  internship_start_date: string;
-  internship_end_date: string;
-  issue_date: string;
-  certificate_status: string;
-};
-
-export const VERIFY_BASE_URL = "https://www.deplorixtechnologies.site/verify";
-
-export const formatDate = (d: string) =>
-  new Date(d).toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-
-export const formatDuration = (start: string, end: string) =>
-  `${formatDate(start)} to ${formatDate(end)}`;
+export { VERIFY_BASE_URL } from "./certificate-data";
+export type { Certificate } from "./certificate-data";
 
 export async function generateCertificatePdf(cert: Certificate) {
   const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });

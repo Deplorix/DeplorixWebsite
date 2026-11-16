@@ -81,8 +81,8 @@ const ProjectAdvisor = () => {
   const division = brief ? getDivision(brief.divisionId) ?? divisions[0] : null;
 
   const generate = async () => {
-    if (description.trim().length < 20) {
-      setError("Please describe your project in at least 20 characters.");
+    if (description.trim().length < 20 || description.trim().length > 2000) {
+      setError("Please describe your project in 20 to 2000 characters.");
       return;
     }
     setLoading(true);
@@ -158,7 +158,7 @@ const ProjectAdvisor = () => {
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-white/60">Your prompt</p>
                 <Label htmlFor="advisor-input" className="mt-1 block font-display text-xl font-bold text-white md:text-2xl">
-              What do you need?
+                  What do you need?
                 </Label>
               </div>
               <p className="text-xs text-white/60">Be specific about the user, goal and timeline.</p>
@@ -166,7 +166,7 @@ const ProjectAdvisor = () => {
             <Textarea
               id="advisor-input"
               rows={5}
-              maxLength={1200}
+              maxLength={2000}
               className="mt-4 min-h-[150px] border-white/10 bg-white/[0.07] text-base text-white shadow-none placeholder:text-white/50 hover:border-white/20 focus-visible:border-[#a98bff] focus-visible:ring-[#a98bff]/20"
               placeholder="e.g. We run a dental clinic in Bangalore and want an online booking site with reminders, plus help getting found on Google."
               value={description}

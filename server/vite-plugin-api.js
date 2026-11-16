@@ -1,4 +1,4 @@
-import { getDb, saveInquiry, saveInternshipApplication } from "./db.js";
+import { getDb, saveInquiry } from "./db.js";
 import { prepareInquiry, publicInquiryError } from "./inquiry.js";
 import {
   prepareInternshipApplication,
@@ -70,7 +70,6 @@ export function apiMiddlewarePlugin() {
               success: true,
               message: "Inquiry saved successfully",
               id: saved.id,
-              data: saved,
             });
           }
 
@@ -85,25 +84,11 @@ export function apiMiddlewarePlugin() {
               prepared.application,
               prepared.resume,
             );
-            let savedId = null;
-            try {
-              const saved = await saveInternshipApplication({
-                ...prepared.application,
-                resumeName: prepared.resume ? prepared.resume.name : null,
-                resumeType: prepared.resume ? prepared.resume.type : null,
-                resumeSize: prepared.resume ? prepared.resume.size : null,
-                emailId: email ? email.id : null,
-              });
-              savedId = saved.id;
-            } catch (databaseError) {
-              console.error("Internship application emailed but database logging failed:", databaseError);
-            }
 
             return sendJson(res, 201, {
               success: true,
               message: "Application received successfully",
               emailId: email ? email.id : null,
-              id: savedId,
             });
           }
 

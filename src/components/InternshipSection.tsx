@@ -6,10 +6,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import internshipImg from "@/assets/internship.jpg";
-import { submitInternshipApplication } from "@/lib/api";
 
-const WHATSAPP_NUMBER = "919945831090";
-const DISPLAY_PHONE = "+91 99458 31090";
+const WHATSAPP_NUMBER = "916360327386";
+const DISPLAY_PHONE = "+91 63603 27386";
 
 const journey = [
   {
@@ -39,20 +38,7 @@ const outcomes = [
   { icon: CheckCircle2, label: "Placement readiness" },
 ];
 
-const MAX_RESUME_BYTES = 3 * 1024 * 1024; // Keep the encoded request below common serverless limits.
-
-const fileToBase64 = (file: File) =>
-  new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = typeof reader.result === "string" ? reader.result : "";
-      const [, data = ""] = result.split(",", 2);
-      if (!data) reject(new Error("We couldn't read the selected resume."));
-      else resolve(data);
-    };
-    reader.onerror = () => reject(new Error("We couldn't read the selected resume."));
-    reader.readAsDataURL(file);
-  });
+const MAX_RESUME_BYTES = 5 * 1024 * 1024; // 5 MB
 
 const formatWhatsAppMessage = (data: {
   name: string;
@@ -131,31 +117,15 @@ const InternshipSection = () => {
     const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(waText)}`;
     setLastWaUrl(waUrl);
 
-    const whatsappWindow = window.open("about:blank", "_blank");
-
-    try {
-      const resumeData = resume ? await fileToBase64(resume) : undefined;
-      await submitInternshipApplication({
-        ...form,
-        resumeLink: resumeLink.trim() || undefined,
-        attachInWhatsApp: sendInChat,
-        resume: resume && resumeData ? {
-          name: resume.name,
-          type: resume.type || "application/pdf",
-          data: resumeData,
-        } : null,
-      });
-
-      if (whatsappWindow && !whatsappWindow.closed) {
-        whatsappWindow.location.href = waUrl;
-      }
-      setSent(true);
-    } catch (submissionError) {
-      whatsappWindow?.close();
-      setError(submissionError instanceof Error ? submissionError.message : "We couldn't send your application. Please try again.");
-    } finally {
-      setSubmitting(false);
+    // Open WhatsApp immediately and synchronously — acts purely as a direct WhatsApp form
+    const whatsappWindow = window.open(waUrl, "_blank", "noopener,noreferrer");
+    if (!whatsappWindow || whatsappWindow.closed || typeof whatsappWindow.closed === "undefined") {
+      // Fallback redirection if popup blocker intercepted
+      window.location.href = waUrl;
     }
+
+    setSent(true);
+    setSubmitting(false);
   };
 
   const handleResume = (file: File | null) => {
@@ -173,7 +143,7 @@ const InternshipSection = () => {
     }
     if (file.size > MAX_RESUME_BYTES) {
       setResume(null);
-      setError("Your resume must be 3 MB or smaller.");
+      setError("Your resume must be 5 MB or smaller.");
       return;
     }
     setResume(file);

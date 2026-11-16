@@ -92,17 +92,42 @@ const SCHEMA = {
   },
 };
 
+const ALLOWED_AUDIENCES = new Set(["Business", "Startup", "Student", "Institution", ""]);
+const ALLOWED_BUDGETS = new Set(["Under ₹25k", "₹25k – ₹1L", "₹1L – ₹5L", "Above ₹5L", "Not sure yet", ""]);
+const ALLOWED_TIMELINES = new Set(["ASAP", "2–4 weeks", "1–3 months", "Flexible", ""]);
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return Response.json(
+      { error: "Method not allowed" },
+      { status: 405, headers: corsHeaders },
+    );
+  }
+
   try {
     const { description, audience, budget, timeline } = await req.json().catch(() => ({}));
 
-    if (typeof description !== "string" || description.trim().length < 20) {
+    if (typeof description !== "string" || description.trim().length < 20 || description.trim().length > 2000) {
       return Response.json(
-        { error: "Please describe your project in at least 20 characters." },
+        { error: "Please describe your project in 20 to 2000 characters." },
+        { status: 400, headers: corsHeaders },
+      );
+    }
+
+    if (
+      typeof audience !== "string" ||
+      typeof budget !== "string" ||
+      typeof timeline !== "string" ||
+      !ALLOWED_AUDIENCES.has(audience) ||
+      !ALLOWED_BUDGETS.has(budget) ||
+      !ALLOWED_TIMELINES.has(timeline)
+    ) {
+      return Response.json(
+        { error: "The selected project options are invalid." },
         { status: 400, headers: corsHeaders },
       );
     }
@@ -136,28 +161,36 @@ Never quote prices.`;
       );
     }
 
-    const res = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: instructions },
-          { role: "user", content: userInput },
-        ],
-        response_format: {
-          type: "json_schema",
-          json_schema: {
-            name: "project_brief",
-            strict: true,
-            schema: SCHEMA,
-          },
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20_000);
+    let res: Response;
+    try {
+      res = await fetch(apiUrl, {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
         },
-      }),
-    });
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: instructions },
+            { role: "user", content: userInput },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "project_brief",
+              strict: true,
+              schema: SCHEMA,
+            },
+          },
+        }),
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
 
     if (!res.ok) {
       return Response.json(

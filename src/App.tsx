@@ -8,6 +8,7 @@ const DivisionWork = lazy(() => import("./pages/DivisionWork"));
 const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 const AdminAuth = lazy(() => import("./pages/AdminAuth"));
 const AdminCertificates = lazy(() => import("./pages/AdminCertificates"));
+const CertificateVerification = lazy(() => import("./pages/CertificateVerification"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const RouteLoader = () => (
@@ -22,7 +23,12 @@ const RouteScrollManager = () => {
   useEffect(() => {
     if (hash) {
       const timer = window.setTimeout(() => {
-        document.querySelector(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        try {
+          const targetId = decodeURIComponent(hash.slice(1));
+          document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        } catch {
+          // Ignore malformed URL hashes rather than crashing route rendering.
+        }
       }, 80);
       return () => window.clearTimeout(timer);
     }
@@ -50,6 +56,7 @@ const App = () => (
             <Route path="/terms" element={<TermsAndConditions />} />
             <Route path="/admin/login" element={<AdminAuth />} />
             <Route path="/admin/certificates" element={<AdminCertificates />} />
+            <Route path="/verify/:certificateId" element={<CertificateVerification />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

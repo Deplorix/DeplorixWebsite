@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import {
   Download, FileDown, Loader2, LogOut, Pencil, Plus, QrCode, Search, Trash2,
 } from "lucide-react";
-import type { Certificate } from "@/lib/certificate";
+import type { Certificate } from "@/lib/certificate-data";
 import { generateCertificatePdf, generateQrDataUrl, VERIFY_BASE_URL } from "@/lib/certificate";
 
 const empty: Certificate = {
@@ -269,8 +269,9 @@ const AdminCertificates = () => {
           </DialogHeader>
           <form onSubmit={save} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <Label>Certificate ID</Label>
+              <Label htmlFor="certificate-id">Certificate ID</Label>
               <Input
+                id="certificate-id"
                 required
                 value={form.certificate_id}
                 disabled={!!editing}
@@ -279,32 +280,32 @@ const AdminCertificates = () => {
               />
             </div>
             <div className="md:col-span-2">
-              <Label>Student Name</Label>
-              <Input required value={form.student_name} onChange={(e) => setForm({ ...form, student_name: e.target.value })} />
+              <Label htmlFor="student-name">Student Name</Label>
+              <Input id="student-name" required value={form.student_name} onChange={(e) => setForm({ ...form, student_name: e.target.value })} />
             </div>
             <div>
-              <Label>Domain</Label>
-              <Input required value={form.domain} onChange={(e) => setForm({ ...form, domain: e.target.value })} />
+              <Label htmlFor="certificate-domain">Domain</Label>
+              <Input id="certificate-domain" required value={form.domain} onChange={(e) => setForm({ ...form, domain: e.target.value })} />
             </div>
             <div>
-              <Label>Status</Label>
-              <Input required value={form.certificate_status} onChange={(e) => setForm({ ...form, certificate_status: e.target.value })} />
+              <Label htmlFor="certificate-status">Status</Label>
+              <Input id="certificate-status" required value={form.certificate_status} onChange={(e) => setForm({ ...form, certificate_status: e.target.value })} />
             </div>
             <div className="md:col-span-2">
-              <Label>College Name</Label>
-              <Input required value={form.college_name} onChange={(e) => setForm({ ...form, college_name: e.target.value })} />
+              <Label htmlFor="college-name">College Name</Label>
+              <Input id="college-name" required value={form.college_name} onChange={(e) => setForm({ ...form, college_name: e.target.value })} />
             </div>
             <div>
-              <Label>Start Date</Label>
-              <Input type="date" required value={form.internship_start_date} onChange={(e) => setForm({ ...form, internship_start_date: e.target.value })} />
+              <Label htmlFor="internship-start-date">Start Date</Label>
+              <Input id="internship-start-date" type="date" required value={form.internship_start_date} onChange={(e) => setForm({ ...form, internship_start_date: e.target.value })} />
             </div>
             <div>
-              <Label>End Date</Label>
-              <Input type="date" required value={form.internship_end_date} onChange={(e) => setForm({ ...form, internship_end_date: e.target.value })} />
+              <Label htmlFor="internship-end-date">End Date</Label>
+              <Input id="internship-end-date" type="date" required value={form.internship_end_date} onChange={(e) => setForm({ ...form, internship_end_date: e.target.value })} />
             </div>
             <div className="md:col-span-2">
-              <Label>Issue Date</Label>
-              <Input type="date" required value={form.issue_date} onChange={(e) => setForm({ ...form, issue_date: e.target.value })} />
+              <Label htmlFor="certificate-issue-date">Issue Date</Label>
+              <Input id="certificate-issue-date" type="date" required value={form.issue_date} onChange={(e) => setForm({ ...form, issue_date: e.target.value })} />
             </div>
             <DialogFooter className="md:col-span-2">
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
