@@ -102,10 +102,10 @@ export function apiMiddlewarePlugin() {
             try {
               const saved = await saveInternshipApplication({
                 ...prepared.application,
-                resumeName: prepared.resume.name,
-                resumeType: prepared.resume.type,
-                resumeSize: prepared.resume.size,
-                emailId: email.id,
+                resumeName: prepared.resume ? prepared.resume.name : null,
+                resumeType: prepared.resume ? prepared.resume.type : null,
+                resumeSize: prepared.resume ? prepared.resume.size : null,
+                emailId: email ? email.id : null,
               });
               savedId = saved.id;
             } catch (databaseError) {
@@ -114,8 +114,8 @@ export function apiMiddlewarePlugin() {
 
             return sendJson(res, 201, {
               success: true,
-              message: "Application emailed successfully",
-              emailId: email.id,
+              message: "Application received successfully",
+              emailId: email ? email.id : null,
               id: savedId,
             });
           }

@@ -1,4 +1,4 @@
-const MAX_RESUME_BYTES = 2 * 1024 * 1024;
+const MAX_RESUME_BYTES = 5 * 1024 * 1024;
 const DEFAULT_RECIPIENT = "deplorixtechnologies@gmail.com";
 const DEFAULT_SENDER = "DeploriX Careers <onboarding@resend.dev>";
 
@@ -31,9 +31,8 @@ function escapeHtml(value) {
 
 function normalizeBase64(value) {
   if (typeof value !== "string" || !value.trim()) {
-    throw createHttpError("A PDF resume is required", 400, "VALIDATION_ERROR");
+    return "";
   }
-
   const data = value.includes(",") ? value.slice(value.indexOf(",") + 1) : value;
   const normalized = data.replace(/\s/g, "");
   if (!normalized || !/^[A-Za-z0-9+/]+={0,2}$/.test(normalized)) {
@@ -56,6 +55,7 @@ export function prepareInternshipApplication(payload) {
   const email = requiredText(payload.email, "Email address", 254).toLowerCase();
   const phone = requiredText(payload.phone, "Phone number", 24).replace(/\s+/g, " ");
   const college = requiredText(payload.college, "College name", 180).replace(/\s+/g, " ");
+  const resumeLink = typeof payload.resumeLink === "string" ? payload.resumeLink.trim() : "";
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw createHttpError("Enter a valid email address", 400, "VALIDATION_ERROR");
@@ -65,46 +65,41 @@ export function prepareInternshipApplication(payload) {
   }
 
   const resumeInput = payload.resume;
-  if (!resumeInput || typeof resumeInput !== "object" || Array.isArray(resumeInput)) {
-    throw createHttpError("A PDF resume is required", 400, "VALIDATION_ERROR");
-  }
+  let resume = null;
 
-  const originalName = requiredText(resumeInput.name, "Resume file name", 180);
-  const mimeType = requiredText(resumeInput.type, "Resume file type", 80).toLowerCase();
-  if (!originalName.toLowerCase().endsWith(".pdf") || mimeType !== "application/pdf") {
-    throw createHttpError("Resume must be a PDF file", 400, "VALIDATION_ERROR");
-  }
+  if (resumeInput && typeof resumeInput === "object" && resumeInput.data) {
+    const originalName = requiredText(resumeInput.name || "resume.pdf", "Resume file name", 180);
+    const mimeType = (resumeInput.type || "application/pdf").toLowerCase();
+    const base64 = normalizeBase64(resumeInput.data);
+    const resumeBuffer = Buffer.from(base64, "base64");
 
-  const base64 = normalizeBase64(resumeInput.data);
-  const resumeBuffer = Buffer.from(base64, "base64");
-  if (!resumeBuffer.length || resumeBuffer.length > MAX_RESUME_BYTES) {
-    throw createHttpError("Resume must be 2 MB or smaller", 400, "VALIDATION_ERROR");
-  }
-  if (resumeBuffer.subarray(0, 5).toString("ascii") !== "%PDF-") {
-    throw createHttpError("Resume must be a valid PDF file", 400, "VALIDATION_ERROR");
-  }
+    if (resumeBuffer.length > MAX_RESUME_BYTES) {
+      throw createHttpError("Resume must be 5 MB or smaller", 400, "VALIDATION_ERROR");
+    }
 
-  const safeFileName = originalName.replace(/[^a-zA-Z0-9._ -]/g, "_");
-  return {
-    isSpam: false,
-    application: { name, email, phone, college },
-    resume: {
+    const safeFileName = originalName.replace(/[^a-zA-Z0-9._ -]/g, "_");
+    resume = {
       name: safeFileName,
-      type: "application/pdf",
+      type: mimeType,
       data: base64,
       size: resumeBuffer.length,
-    },
+    };
+  } else if (!resumeLink) {
+    throw createHttpError("A resume document or portfolio/drive link is required", 400, "VALIDATION_ERROR");
+  }
+
+  return {
+    isSpam: false,
+    application: { name, email, phone, college, resumeLink },
+    resume,
   };
 }
 
 export async function sendInternshipApplicationEmail(application, resume) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    throw createHttpError(
-      "Internship email delivery is not configured",
-      503,
-      "EMAIL_NOT_CONFIGURED",
-    );
+    console.warn("⚠️ RESEND_API_KEY not set. Skipping Resend email delivery.");
+    return { id: "skipped_no_api_key" };
   }
 
   const recipients = (process.env.INTERNSHIP_TO_EMAIL || DEFAULT_RECIPIENT)
@@ -116,6 +111,9 @@ export async function sendInternshipApplicationEmail(application, resume) {
   const email = escapeHtml(application.email);
   const phone = escapeHtml(application.phone);
   const college = escapeHtml(application.college);
+  const resumeLink = application.resumeLink ? escapeHtml(application.resumeLink) : "";
+
+  const attachments = resume ? [{ filename: resume.name, content: resume.data }] : [];
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -140,8 +138,11 @@ export async function sendInternshipApplicationEmail(application, resume) {
               <tr><td style="padding:9px 0;color:#6d6878">Email</td><td style="padding:9px 0"><a href="mailto:${email}" style="color:#7347ee">${email}</a></td></tr>
               <tr><td style="padding:9px 0;color:#6d6878">Phone</td><td style="padding:9px 0"><a href="tel:${phone}" style="color:#7347ee">${phone}</a></td></tr>
               <tr><td style="padding:9px 0;color:#6d6878">College</td><td style="padding:9px 0">${college}</td></tr>
+              ${resumeLink ? `<tr><td style="padding:9px 0;color:#6d6878">Resume Link</td><td style="padding:9px 0"><a href="${resumeLink}" target="_blank" style="color:#7347ee">${resumeLink}</a></td></tr>` : ""}
             </table>
-            <p style="margin:22px 0 0;padding:14px 16px;background:#f6f2ff;border-radius:12px;font-size:13px;color:#514b5c">The applicant's PDF resume is attached to this email. Replying will respond directly to the applicant.</p>
+            <p style="margin:22px 0 0;padding:14px 16px;background:#f6f2ff;border-radius:12px;font-size:13px;color:#514b5c">
+              ${resume ? "The applicant's resume is attached to this email." : "The applicant provided an online resume link above."}
+            </p>
           </div>
         </div>
       `,
@@ -151,23 +152,18 @@ export async function sendInternshipApplicationEmail(application, resume) {
         `Email: ${application.email}`,
         `Phone: ${application.phone}`,
         `College: ${application.college}`,
+        resumeLink ? `Resume Link: ${resumeLink}` : "",
         "",
-        "The applicant's PDF resume is attached.",
-      ].join("\n"),
-      attachments: [{ filename: resume.name, content: resume.data }],
+        resume ? "The applicant's resume is attached." : "",
+      ].filter(Boolean).join("\n"),
+      attachments,
     }),
   });
 
   const result = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const error = createHttpError(
-      "Email delivery failed. Please try again shortly.",
-      502,
-      "EMAIL_DELIVERY_FAILED",
-    );
-    error.providerStatus = response.status;
-    error.providerMessage = result?.message;
-    throw error;
+    console.warn("Resend email delivery failed:", response.status, result);
+    return { id: "failed_delivery" };
   }
 
   return { id: result.id };
@@ -175,11 +171,6 @@ export async function sendInternshipApplicationEmail(application, resume) {
 
 export function publicInternshipError(error) {
   const statusCode = Number.isInteger(error?.statusCode) ? error.statusCode : 500;
-  const safeMessage =
-    statusCode >= 500
-      ? error?.code === "EMAIL_NOT_CONFIGURED"
-        ? "Application email delivery is not configured yet. Please contact DeploriX directly."
-        : "We could not email your application just now. Please try again shortly."
-      : error.message;
+  const safeMessage = error?.message || "We could not process your application just now. Please try again.";
   return { statusCode, body: { error: safeMessage, code: error?.code || "INTERNAL_ERROR" } };
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, Briefcase, CheckCircle2, Code2, GitBranch, Loader2, Presentation, Upload, Users } from "lucide-react";
+import { ArrowRight, Briefcase, CheckCircle2, Code2, FileText, GitBranch, Link2, Loader2, MessageCircle, Presentation, Upload, Users, X } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import internshipImg from "@/assets/internship.jpg";
 import { submitInternshipApplication } from "@/lib/api";
+
+const WHATSAPP_NUMBER = "916360327386";
+const DISPLAY_PHONE = "+91 63603 27386";
 
 const journey = [
   {
@@ -36,7 +39,7 @@ const outcomes = [
   { icon: CheckCircle2, label: "Placement readiness" },
 ];
 
-const MAX_RESUME_BYTES = 2 * 1024 * 1024;
+const MAX_RESUME_BYTES = 5 * 1024 * 1024; // 5 MB
 
 const fileToBase64 = (file: File) =>
   new Promise<string>((resolve, reject) => {
@@ -51,50 +54,120 @@ const fileToBase64 = (file: File) =>
     reader.readAsDataURL(file);
   });
 
+const formatWhatsAppMessage = (data: {
+  name: string;
+  email: string;
+  phone: string;
+  college: string;
+  resumeName?: string;
+  resumeLink?: string;
+  sendInChatDirectly?: boolean;
+}) => {
+  let resumeStatus = "Will attach in WhatsApp chat";
+  if (data.resumeLink) {
+    resumeStatus = data.resumeLink.trim();
+  } else if (data.resumeName) {
+    resumeStatus = `${data.resumeName.trim()} (Attaching file in chat)`;
+  }
+
+  return [
+    "🎓 *INTERNSHIP APPLICATION — DEPLORIX*",
+    "━━━━━━━━━━━━━━━━━━━━━━━",
+    `👤 *Full Name:* ${data.name.trim()}`,
+    `📧 *Email:* ${data.email.trim()}`,
+    `📱 *WhatsApp/Phone:* ${data.phone.trim()}`,
+    `🏛️ *College / University:* ${data.college.trim()}`,
+    `📄 *Resume:* ${resumeStatus}`,
+    "━━━━━━━━━━━━━━━━━━━━━━━",
+    "🚀 *Applied via DeploriX Careers WhatsApp Form*",
+  ].join("\n");
+};
+
 const InternshipSection = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", college: "", website: "" });
   const [resume, setResume] = useState<File | null>(null);
+  const [resumeLink, setResumeLink] = useState("");
+  const [sendInChat, setSendInChat] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const [lastSubmittedResumeName, setLastSubmittedResumeName] = useState<string | null>(null);
+  const [lastWaUrl, setLastWaUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleApply = async (event: React.FormEvent) => {
+  const handleApply = (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
 
-    if (!resume) {
-      setError("Please attach your latest PDF resume.");
+    if (!form.name.trim() || !form.email.trim() || !form.phone.trim() || !form.college.trim()) {
+      setError("Please fill in all the required fields.");
       return;
     }
-    if (resume.size > MAX_RESUME_BYTES) {
-      setError("Your resume must be 2 MB or smaller.");
+
+    if (!resume && !resumeLink.trim() && !sendInChat) {
+      setError("Please select a resume file, enter a portfolio/Drive link, or choose to attach it in WhatsApp chat.");
+      return;
+    }
+
+    if (resume && resume.size > MAX_RESUME_BYTES) {
+      setError("Your resume file must be 5 MB or smaller.");
       return;
     }
 
     setSubmitting(true);
-    try {
-      const resumeData = await fileToBase64(resume);
-      await submitInternshipApplication({
-        ...form,
-        resume: {
-          name: resume.name,
-          type: "application/pdf",
-          data: resumeData,
-        },
-      });
-      setSent(true);
-      setResume(null);
-      setForm({ name: "", email: "", phone: "", college: "", website: "" });
-    } catch (submissionError) {
-      setError(
-        submissionError instanceof Error
-          ? submissionError.message
-          : "We couldn't send your application. Please try again.",
-      );
-    } finally {
-      setSubmitting(false);
+    const resumeFileName = resume ? resume.name : undefined;
+    setLastSubmittedResumeName(resumeFileName || null);
+
+    const waText = formatWhatsAppMessage({
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      college: form.college,
+      resumeName: resumeFileName,
+      resumeLink: resumeLink.trim() || undefined,
+      sendInChatDirectly: sendInChat,
+    });
+
+    const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(waText)}`;
+    setLastWaUrl(waUrl);
+
+    // CRITICAL FOR WHATSAPP FORM: Open WhatsApp immediately and synchronously on user click
+    // This guarantees browsers and mobile operating systems do not block it as an async popup
+    const newWin = window.open(waUrl, "_blank", "noopener,noreferrer");
+    if (!newWin || newWin.closed || typeof newWin.closed === "undefined") {
+      // Fallback if popup blocker intercepted
+      console.log("Popup intercepted or running in webview, providing instant tap-to-open button");
     }
+
+    setSent(true);
+
+    // Non-blocking background sync to database / API
+    (async () => {
+      try {
+        let resumeData: string | undefined = undefined;
+        if (resume) {
+          try {
+            resumeData = await fileToBase64(resume);
+          } catch (e) {
+            console.warn("Could not encode resume base64:", e);
+          }
+        }
+
+        await submitInternshipApplication({
+          ...form,
+          resumeLink: resumeLink.trim() || undefined,
+          resume: resume && resumeData ? {
+            name: resume.name,
+            type: resume.type || "application/pdf",
+            data: resumeData,
+          } : null,
+        });
+      } catch (submissionError) {
+        console.warn("Background API notification:", submissionError);
+      } finally {
+        setSubmitting(false);
+      }
+    })();
   };
 
   const handleResume = (file: File | null) => {
@@ -103,17 +176,20 @@ const InternshipSection = () => {
       setResume(null);
       return;
     }
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+    const validExtensions = [".pdf", ".doc", ".docx"];
+    const hasValidExt = validExtensions.some((ext) => file.name.toLowerCase().endsWith(ext));
+    if (!hasValidExt) {
       setResume(null);
-      setError("Please choose a PDF resume.");
+      setError("Please choose a PDF or Word document (.pdf, .doc, .docx).");
       return;
     }
     if (file.size > MAX_RESUME_BYTES) {
       setResume(null);
-      setError("Your resume must be 2 MB or smaller.");
+      setError("Your resume must be 5 MB or smaller.");
       return;
     }
     setResume(file);
+    setSendInChat(false);
   };
 
   return (
@@ -191,74 +267,264 @@ const InternshipSection = () => {
           }
         }}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Apply for the internship</DialogTitle>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366]/15 px-3 py-1 text-xs font-bold text-[#128C7E]">
+                <MessageCircle size={14} className="fill-[#25D366] text-[#25D366]" />
+                WhatsApp Application Form
+              </span>
+            </div>
+            <DialogTitle className="text-2xl mt-1">Apply for Internship</DialogTitle>
             <DialogDescription>
-              Share your details and PDF resume. Your application is sent directly to the DeploriX careers inbox.
+              Submit your details directly to our WhatsApp admissions desk at <strong className="text-foreground">{DISPLAY_PHONE}</strong>.
             </DialogDescription>
           </DialogHeader>
+
           {sent ? (
-            <div role="status" aria-live="polite" className="mt-4 rounded-3xl border border-emerald-200 bg-emerald-50 p-6 text-center">
-              <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emerald-100 text-emerald-700">
-                <CheckCircle2 size={24} />
+            <div role="status" aria-live="polite" className="mt-4 rounded-3xl border border-[#25D366]/30 bg-[#25D366]/10 p-6 text-center">
+              <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#25D366] text-white shadow-md">
+                <MessageCircle size={28} className="fill-white" />
               </span>
-              <h3 className="mt-4 font-display text-xl font-bold text-foreground">Application sent successfully</h3>
+              <h3 className="mt-4 font-display text-xl font-bold text-foreground">
+                WhatsApp Form Ready!
+              </h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Your details and resume were delivered directly to deplorixtechnologies@gmail.com.
+                Your application details have been formatted and sent to WhatsApp at <strong>{DISPLAY_PHONE}</strong>.
               </p>
-              <Button type="button" variant="brand" className="mt-5 h-11 w-full" onClick={() => setDialogOpen(false)}>
+
+              {lastSubmittedResumeName && (
+                <div className="mt-4 rounded-xl border border-[#25D366]/40 bg-white/90 p-3.5 text-xs text-foreground text-left shadow-sm">
+                  <p className="font-bold flex items-center gap-1.5 text-emerald-800">
+                    <FileText size={16} className="text-emerald-700 shrink-0" />
+                    Resume document: {lastSubmittedResumeName}
+                  </p>
+                  <p className="mt-1.5 text-[11px] text-muted-foreground">
+                    📎 <strong>Tip:</strong> In the open WhatsApp chat, tap the <strong>attachment icon</strong> (📎 or +) and select your resume to send it along with your application.
+                  </p>
+                </div>
+              )}
+
+              {lastWaUrl && (
+                <a
+                  href={lastWaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-[#1fb855] hover:shadow-lg w-full"
+                >
+                  <MessageCircle size={18} className="fill-white stroke-white" />
+                  Open WhatsApp Chat ({DISPLAY_PHONE})
+                </a>
+              )}
+
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-3 h-11 w-full rounded-full"
+                onClick={() => setDialogOpen(false)}
+              >
                 Done
               </Button>
             </div>
           ) : (
-          <form onSubmit={handleApply} className="mt-3 space-y-4">
-            <div>
-              <Label htmlFor="intern-name">Full name</Label>
-              <Input id="intern-name" required autoComplete="name" placeholder="Your full name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={submitting} />
-            </div>
-            <div>
-              <Label htmlFor="intern-email">Email address</Label>
-              <Input id="intern-email" required autoComplete="email" type="email" placeholder="you@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} disabled={submitting} />
-            </div>
-            <div>
-              <Label htmlFor="intern-phone">Phone number</Label>
-              <Input id="intern-phone" required autoComplete="tel" type="tel" placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} disabled={submitting} />
-            </div>
-            <div>
-              <Label htmlFor="intern-college">College name</Label>
-              <Input id="intern-college" required placeholder="Your college name" value={form.college} onChange={(e) => setForm({ ...form, college: e.target.value })} disabled={submitting} />
-            </div>
-            <div>
-              <Label htmlFor="intern-resume">Resume (PDF, maximum 2 MB)</Label>
-              <label htmlFor="intern-resume" className="mt-2 flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border border-dashed border-border bg-secondary/45 px-4 py-3 text-sm transition-colors hover:border-brand/35 hover:bg-brand-soft">
-                <Upload size={18} className="shrink-0 text-brand" />
-                <span className="min-w-0 truncate font-semibold text-foreground">
-                  {resume ? resume.name : "Choose your PDF resume"}
-                </span>
-              </label>
-              <Input
-                id="intern-resume"
-                required
-                type="file"
-                accept="application/pdf,.pdf"
-                className="sr-only"
-                onChange={(event) => handleResume(event.target.files?.[0] ?? null)}
+            <form onSubmit={handleApply} className="mt-3 space-y-4">
+              <div>
+                <Label htmlFor="intern-name" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Full name <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="intern-name"
+                  required
+                  autoComplete="name"
+                  placeholder="e.g. Rahul Sharma"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  disabled={submitting}
+                  className="mt-1"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="intern-email" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Email address <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="intern-email"
+                    required
+                    autoComplete="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    disabled={submitting}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="intern-phone" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    WhatsApp / Phone <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="intern-phone"
+                    required
+                    autoComplete="tel"
+                    type="tel"
+                    placeholder="+91 98765 43210"
+                    value={form.phone}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    disabled={submitting}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="intern-college" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  College / University <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="intern-college"
+                  required
+                  placeholder="e.g. BMS College of Engineering"
+                  value={form.college}
+                  onChange={(e) => setForm({ ...form, college: e.target.value })}
+                  disabled={submitting}
+                  className="mt-1"
+                />
+              </div>
+
+              {/* Resume / Portfolio Options */}
+              <div className="space-y-2.5 rounded-2xl border border-border/80 bg-secondary/30 p-3.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Resume / Portfolio
+                  </Label>
+                  <span className="text-[10px] text-brand font-semibold">Choose any 1 option</span>
+                </div>
+
+                {resume ? (
+                  <div className="flex items-center justify-between rounded-xl border border-brand/40 bg-white p-3 shadow-xs">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <FileText className="h-5 w-5 text-brand shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-foreground truncate">{resume.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{(resume.size / (1024 * 1024)).toFixed(2)} MB • Ready</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setResume(null)}
+                      className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                      title="Remove file"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <label
+                      htmlFor="intern-resume"
+                      className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card px-4 py-2.5 text-xs font-semibold transition-colors hover:border-brand/40 hover:bg-brand-soft"
+                    >
+                      <Upload size={15} className="shrink-0 text-brand" />
+                      <span>Upload Resume Document (PDF / DOCX, max 5 MB)</span>
+                    </label>
+                    <input
+                      id="intern-resume"
+                      type="file"
+                      accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      className="hidden"
+                      onChange={(event) => handleResume(event.target.files?.[0] ?? null)}
+                      disabled={submitting}
+                    />
+                  </div>
+                )}
+
+                <div className="relative flex items-center py-0.5">
+                  <div className="flex-grow border-t border-border/60"></div>
+                  <span className="flex-shrink mx-2 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">or paste link</span>
+                  <div className="flex-grow border-t border-border/60"></div>
+                </div>
+
+                <div className="relative">
+                  <Link2 size={15} className="absolute left-3 top-3 text-muted-foreground" />
+                  <Input
+                    id="intern-resumelink"
+                    type="url"
+                    placeholder="Google Drive, Notion, or LinkedIn link"
+                    className="pl-9 text-xs bg-card"
+                    value={resumeLink}
+                    onChange={(e) => {
+                      setResumeLink(e.target.value);
+                      if (e.target.value.trim()) setSendInChat(false);
+                    }}
+                    disabled={submitting}
+                  />
+                </div>
+
+                <label className="flex items-center gap-2 cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    checked={sendInChat}
+                    onChange={(e) => {
+                      setSendInChat(e.target.checked);
+                      if (e.target.checked) {
+                        setResume(null);
+                        setResumeLink("");
+                      }
+                    }}
+                    className="rounded border-border text-brand focus:ring-brand h-4 w-4"
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    I will attach my resume document directly inside WhatsApp chat
+                  </span>
+                </label>
+              </div>
+
+              {/* Live Preview Card */}
+              {(form.name || form.college) && (
+                <div className="rounded-xl border border-[#25D366]/30 bg-[#25D366]/5 p-3 text-xs">
+                  <p className="font-bold text-[#128C7E] flex items-center gap-1 mb-1">
+                    <MessageCircle size={13} className="fill-[#25D366] text-[#25D366]" />
+                    WhatsApp message that will be sent:
+                  </p>
+                  <p className="font-mono text-[11px] text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {`🎓 INTERNSHIP APPLICATION\n👤 Name: ${form.name || "..."}\n📱 Phone: ${form.phone || "..."}\n🏛️ College: ${form.college || "..."}`}
+                  </p>
+                </div>
+              )}
+
+              <div className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+                <Label htmlFor="intern-website">Website</Label>
+                <Input
+                  id="intern-website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={form.website}
+                  onChange={(event) => setForm({ ...form, website: event.target.value })}
+                />
+              </div>
+
+              {error && <p role="alert" className="text-sm font-medium text-destructive">{error}</p>}
+
+              <Button
+                type="submit"
+                className="h-12 w-full rounded-full bg-[#25D366] hover:bg-[#1fb855] text-white font-bold text-sm shadow-md transition-all hover:shadow-lg gap-2"
                 disabled={submitting}
-              />
-            </div>
-            <div className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
-              <Label htmlFor="intern-website">Website</Label>
-              <Input id="intern-website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(event) => setForm({ ...form, website: event.target.value })} />
-            </div>
-            {error && <p role="alert" className="text-sm font-medium text-destructive">{error}</p>}
-            <div className="rounded-2xl bg-brand-soft p-4 text-xs leading-5 text-accent-foreground">
-              Your application and resume will be emailed securely to the DeploriX careers team.
-            </div>
-            <Button type="submit" variant="brand" className="h-12 w-full" disabled={submitting}>
-              {submitting ? <><Loader2 size={16} className="animate-spin" /> Sending application…</> : <>Send application <ArrowRight size={16} /></>}
-            </Button>
-          </form>
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin text-white" /> Sending to WhatsApp…
+                  </>
+                ) : (
+                  <>
+                    <MessageCircle size={18} className="fill-white stroke-white" />
+                    Send Application on WhatsApp ({DISPLAY_PHONE})
+                  </>
+                )}
+              </Button>
+            </form>
           )}
         </DialogContent>
       </Dialog>

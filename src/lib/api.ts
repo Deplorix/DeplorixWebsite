@@ -16,11 +16,12 @@ export type InternshipApplicationPayload = {
   phone: string;
   college: string;
   website?: string;
-  resume: {
+  resumeLink?: string;
+  resume?: {
     name: string;
-    type: "application/pdf";
+    type: string;
     data: string;
-  };
+  } | null;
 };
 
 async function postJson(endpoint: string, payload: unknown) {
