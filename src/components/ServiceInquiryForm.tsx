@@ -67,6 +67,7 @@ const ServiceInquiryForm = () => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    const timers: number[] = [];
     const handler = (e: Event) => {
       const raw = (e as CustomEvent<InquiryDetail | string>).detail;
       const detail: InquiryDetail = typeof raw === "string" ? { divisionId: raw } : raw;
@@ -93,19 +94,22 @@ const ServiceInquiryForm = () => {
     if (param && divisions.some((d) => d.id === param)) {
       setDivisionId(param);
       if (window.location.hash === "#service-inquiry") {
-        setTimeout(
+        timers.push(window.setTimeout(
           () => document.getElementById("service-inquiry")?.scrollIntoView({ behavior: "smooth", block: "center" }),
           300
-        );
+        ));
       }
     }
 
     const pending = getPendingInquiry();
     if (pending) {
-      setTimeout(() => window.dispatchEvent(new CustomEvent(INQUIRY_EVENT, { detail: pending })), 400);
+      timers.push(window.setTimeout(() => window.dispatchEvent(new CustomEvent(INQUIRY_EVENT, { detail: pending })), 400));
     }
 
-    return () => window.removeEventListener(INQUIRY_EVENT, handler);
+    return () => {
+      window.removeEventListener(INQUIRY_EVENT, handler);
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
   }, []);
 
   const validateField = (field: keyof FormState, value: string) => {

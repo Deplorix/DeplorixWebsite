@@ -1,4 +1,5 @@
 import { saveInquiry } from "./_db.js";
+import { prepareInquiry, publicInquiryError } from "../server/inquiry.js";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -14,19 +15,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { name, email, phone, message, division } = req.body || {};
-
-    if (!name || !email || !phone || !message) {
-      return res.status(400).json({ error: "Missing required fields (name, email, phone, message)" });
-    }
-
-    const saved = await saveInquiry({
-      division: division || "tech",
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      phone: phone.trim(),
-      message: message.trim(),
-    });
+    const saved = await saveInquiry(prepareInquiry(req.body || {}));
 
     return res.status(201).json({
       success: true,
@@ -36,6 +25,7 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error("Vercel Serverless Error /api/inquiry:", err);
-    return res.status(500).json({ error: "Failed to save inquiry to database", details: err.message });
+    const response = publicInquiryError(err);
+    return res.status(response.statusCode).json(response.body);
   }
 }

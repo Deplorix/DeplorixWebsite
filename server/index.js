@@ -3,7 +3,8 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
-import { getDb, saveInquiry, saveInternshipApplication, getInquiries } from "./db.js";
+import { getDb, saveInquiry, saveInternshipApplication } from "./db.js";
+import { prepareInquiry, publicInquiryError } from "./inquiry.js";
 import {
   prepareInternshipApplication,
   publicInternshipError,
@@ -29,31 +30,22 @@ app.get("/api/health", async (req, res) => {
     await db.command({ ping: 1 });
     res.json({ status: "ok", database: "connected" });
   } catch (err) {
-    res.status(500).json({ status: "error", message: err.message });
+    console.error("Health check failed:", err);
+    res.status(500).json({ status: "error", message: "Service unavailable" });
   }
 });
 
 // Service Inquiry Form Endpoint (p-6 sm:p-9 lg:p-10)
 app.post("/api/inquiry", async (req, res) => {
   try {
-    const { name, email, phone, message, division } = req.body;
-
-    if (!name || !email || !phone || !message) {
-      return res.status(400).json({ error: "Missing required fields (name, email, phone, message)" });
-    }
-
-    const saved = await saveInquiry({
-      division: division || "tech",
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      phone: phone.trim(),
-      message: message.trim(),
-    });
+    const inquiry = prepareInquiry(req.body || {});
+    const saved = await saveInquiry(inquiry);
 
     res.status(201).json({ success: true, message: "Inquiry saved successfully", id: saved.id, data: saved });
   } catch (err) {
     console.error("Error saving inquiry to MongoDB:", err);
-    res.status(500).json({ error: "Failed to save inquiry to database", details: err.message });
+    const response = publicInquiryError(err);
+    res.status(response.statusCode).json(response.body);
   }
 });
 
@@ -92,20 +84,11 @@ app.post("/api/internship", async (req, res) => {
   }
 });
 
-app.get("/api/inquiries", async (req, res) => {
-  try {
-    const data = await getInquiries();
-    res.json({ success: true, count: data.length, data });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch inquiries", details: err.message });
-  }
-});
-
 // Serve static build in production
 const distPath = path.resolve(__dirname, "../dist");
 app.use(express.static(distPath));
 
-app.get("*", (req, res) => {
+app.get("/{*splat}", (req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
 

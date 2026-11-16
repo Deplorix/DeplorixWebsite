@@ -1,4 +1,5 @@
 import { getDb, saveInquiry, saveInternshipApplication } from "./db.js";
+import { prepareInquiry, publicInquiryError } from "./inquiry.js";
 import {
   prepareInternshipApplication,
   publicInternshipError,
@@ -63,21 +64,7 @@ export function apiMiddlewarePlugin() {
           // ONLY the Service Inquiry Form (from p-6 sm:p-9 lg:p-10) is handled
           if (url === "/api/inquiry" && req.method === "POST") {
             const body = await parseJsonBody(req);
-            const { name, email, phone, message, division } = body;
-
-            if (!name || !email || !phone || !message) {
-              return sendJson(res, 400, {
-                error: "Missing required fields (name, email, phone, message)",
-              });
-            }
-
-            const saved = await saveInquiry({
-              division: division || "tech",
-              name: name.trim(),
-              email: email.trim().toLowerCase(),
-              phone: phone.trim(),
-              message: message.trim(),
-            });
+            const saved = await saveInquiry(prepareInquiry(body));
 
             return sendJson(res, 201, {
               success: true,
@@ -127,7 +114,11 @@ export function apiMiddlewarePlugin() {
             const response = publicInternshipError(err);
             return sendJson(res, response.statusCode, response.body);
           }
-          sendJson(res, 500, { error: "Internal server error", details: err.message });
+          if (url === "/api/inquiry") {
+            const response = publicInquiryError(err);
+            return sendJson(res, response.statusCode, response.body);
+          }
+          sendJson(res, 500, { error: "Internal server error" });
         }
       });
     },

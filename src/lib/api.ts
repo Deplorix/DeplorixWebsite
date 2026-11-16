@@ -25,15 +25,23 @@ export type InternshipApplicationPayload = {
   } | null;
 };
 
-async function postJson(endpoint: string, payload: unknown) {
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
+const REQUEST_TIMEOUT_MS = 15_000;
+
+async function requestJson(endpoint: string, init?: RequestInit) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  let response: Response;
+
+  try {
+    response = await fetch(endpoint, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("The request took too long. Please check your connection and try again.");
+    }
+    throw new Error("We couldn't reach the server. Please check your connection and try again.");
+  } finally {
+    window.clearTimeout(timeout);
+  }
 
   const data = await response.json().catch(() => ({}));
 
@@ -42,6 +50,17 @@ async function postJson(endpoint: string, payload: unknown) {
   }
 
   return data;
+}
+
+async function postJson(endpoint: string, payload: unknown) {
+  return requestJson(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 }
 
 export async function submitInquiry(payload: InquiryPayload) {
@@ -53,6 +72,5 @@ export async function submitInternshipApplication(payload: InternshipApplication
 }
 
 export async function checkApiHealth() {
-  const res = await fetch("/api/health");
-  return res.json();
+  return requestJson("/api/health", { headers: { Accept: "application/json" } });
 }
