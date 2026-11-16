@@ -14,16 +14,21 @@ const WhatsAppButton = () => {
   }, []);
 
   useEffect(() => {
+    let frame = 0;
     const updateVisibility = () => {
-      const pastHeroThreshold = window.scrollY > window.innerHeight * 0.72;
-      const nearPageEnd =
-        window.scrollY + window.innerHeight > document.documentElement.scrollHeight - 650;
-      const contact = document.getElementById("contact");
-      const contactVisible = contact
-        ? contact.getBoundingClientRect().top < window.innerHeight * 0.9 &&
-          contact.getBoundingClientRect().bottom > 0
-        : false;
-      setPastHero(pastHeroThreshold && !nearPageEnd && !contactVisible);
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const pastHeroThreshold = window.scrollY > window.innerHeight * 0.72;
+        const nearPageEnd =
+          window.scrollY + window.innerHeight > document.documentElement.scrollHeight - 650;
+        const contact = document.getElementById("contact");
+        const contactBounds = contact?.getBoundingClientRect();
+        const contactVisible = contactBounds
+          ? contactBounds.top < window.innerHeight * 0.9 && contactBounds.bottom > 0
+          : false;
+        setPastHero(pastHeroThreshold && !nearPageEnd && !contactVisible);
+      });
     };
     updateVisibility();
     window.addEventListener("scroll", updateVisibility, { passive: true });
@@ -31,6 +36,7 @@ const WhatsAppButton = () => {
     return () => {
       window.removeEventListener("scroll", updateVisibility);
       window.removeEventListener("resize", updateVisibility);
+      if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
 

@@ -17,6 +17,7 @@ export type InternshipApplicationPayload = {
   college: string;
   website?: string;
   resumeLink?: string;
+  attachInWhatsApp?: boolean;
   resume?: {
     name: string;
     type: string;

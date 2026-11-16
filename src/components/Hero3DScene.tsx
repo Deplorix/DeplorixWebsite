@@ -1,4 +1,4 @@
-import { useEffect, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
   motion,
   useMotionValue,
@@ -20,11 +20,15 @@ const Hero3DScene = () => {
 
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
+  const pointerBounds = useRef<DOMRect | null>(null);
+  const pointerFrame = useRef(0);
+  const pendingPointer = useRef({ x: 0, y: 0 });
   const rawRotateY = useTransform(pointerX, [-0.5, 0.5], [-7, 7]);
   const rawRotateX = useTransform(pointerY, [-0.5, 0.5], [5, -5]);
   const rotateX = useSpring(rawRotateX, { stiffness: 150, damping: 22, mass: 0.7 });
   const rotateY = useSpring(rawRotateY, { stiffness: 150, damping: 22, mass: 0.7 });
-  const ambientMotion = hasFinePointer && !reduceMotion;
+  const interactiveMotion = hasFinePointer && !reduceMotion;
+  const ambientMotion = false;
 
   useEffect(() => {
     const media = window.matchMedia(finePointerQuery);
@@ -35,14 +39,25 @@ const Hero3DScene = () => {
   }, []);
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!ambientMotion) return;
+    if (!interactiveMotion) return;
 
-    const bounds = event.currentTarget.getBoundingClientRect();
-    pointerX.set((event.clientX - bounds.left) / bounds.width - 0.5);
-    pointerY.set((event.clientY - bounds.top) / bounds.height - 0.5);
+    pointerBounds.current ??= event.currentTarget.getBoundingClientRect();
+    pendingPointer.current = { x: event.clientX, y: event.clientY };
+    if (pointerFrame.current) return;
+
+    pointerFrame.current = window.requestAnimationFrame(() => {
+      pointerFrame.current = 0;
+      const bounds = pointerBounds.current;
+      if (!bounds) return;
+      pointerX.set((pendingPointer.current.x - bounds.left) / bounds.width - 0.5);
+      pointerY.set((pendingPointer.current.y - bounds.top) / bounds.height - 0.5);
+    });
   };
 
   const resetPerspective = () => {
+    pointerBounds.current = null;
+    if (pointerFrame.current) window.cancelAnimationFrame(pointerFrame.current);
+    pointerFrame.current = 0;
     pointerX.set(0);
     pointerY.set(0);
   };

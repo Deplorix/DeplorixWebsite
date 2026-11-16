@@ -1,6 +1,12 @@
-const MAX_RESUME_BYTES = 5 * 1024 * 1024;
+const MAX_RESUME_BYTES = 3 * 1024 * 1024;
 const DEFAULT_RECIPIENT = "deplorixtechnologies@gmail.com";
 const DEFAULT_SENDER = "DeploriX Careers <onboarding@resend.dev>";
+const ALLOWED_RESUME_TYPES = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+const ALLOWED_RESUME_EXTENSIONS = [".pdf", ".doc", ".docx"];
 
 function createHttpError(message, statusCode, code) {
   const error = new Error(message);
@@ -55,7 +61,19 @@ export function prepareInternshipApplication(payload) {
   const email = requiredText(payload.email, "Email address", 254).toLowerCase();
   const phone = requiredText(payload.phone, "Phone number", 24).replace(/\s+/g, " ");
   const college = requiredText(payload.college, "College name", 180).replace(/\s+/g, " ");
-  const resumeLink = typeof payload.resumeLink === "string" ? payload.resumeLink.trim() : "";
+  const rawResumeLink = typeof payload.resumeLink === "string" ? payload.resumeLink.trim() : "";
+  const attachInWhatsApp = payload.attachInWhatsApp === true;
+  let resumeLink = "";
+
+  if (rawResumeLink) {
+    try {
+      const url = new URL(rawResumeLink);
+      if (url.protocol !== "http:" && url.protocol !== "https:") throw new Error("Invalid protocol");
+      resumeLink = url.toString();
+    } catch {
+      throw createHttpError("Enter a valid http or https resume link", 400, "VALIDATION_ERROR");
+    }
+  }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw createHttpError("Enter a valid email address", 400, "VALIDATION_ERROR");
@@ -70,11 +88,15 @@ export function prepareInternshipApplication(payload) {
   if (resumeInput && typeof resumeInput === "object" && resumeInput.data) {
     const originalName = requiredText(resumeInput.name || "resume.pdf", "Resume file name", 180);
     const mimeType = (resumeInput.type || "application/pdf").toLowerCase();
+    const lowerName = originalName.toLowerCase();
+    if (!ALLOWED_RESUME_EXTENSIONS.some((extension) => lowerName.endsWith(extension)) || !ALLOWED_RESUME_TYPES.has(mimeType)) {
+      throw createHttpError("Resume must be a PDF or Word document", 400, "VALIDATION_ERROR");
+    }
     const base64 = normalizeBase64(resumeInput.data);
     const resumeBuffer = Buffer.from(base64, "base64");
 
     if (resumeBuffer.length > MAX_RESUME_BYTES) {
-      throw createHttpError("Resume must be 5 MB or smaller", 400, "VALIDATION_ERROR");
+      throw createHttpError("Resume must be 3 MB or smaller", 400, "VALIDATION_ERROR");
     }
 
     const safeFileName = originalName.replace(/[^a-zA-Z0-9._ -]/g, "_");
@@ -84,13 +106,13 @@ export function prepareInternshipApplication(payload) {
       data: base64,
       size: resumeBuffer.length,
     };
-  } else if (!resumeLink) {
+  } else if (!resumeLink && !attachInWhatsApp) {
     throw createHttpError("A resume document or portfolio/drive link is required", 400, "VALIDATION_ERROR");
   }
 
   return {
     isSpam: false,
-    application: { name, email, phone, college, resumeLink },
+    application: { name, email, phone, college, resumeLink, attachInWhatsApp },
     resume,
   };
 }
@@ -98,8 +120,11 @@ export function prepareInternshipApplication(payload) {
 export async function sendInternshipApplicationEmail(application, resume) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    console.warn("⚠️ RESEND_API_KEY not set. Skipping Resend email delivery.");
-    return { id: "skipped_no_api_key" };
+    throw createHttpError(
+      "Email delivery is not configured yet. Please contact us on WhatsApp while we fix it.",
+      503,
+      "EMAIL_NOT_CONFIGURED",
+    );
   }
 
   const recipients = (process.env.INTERNSHIP_TO_EMAIL || DEFAULT_RECIPIENT)
@@ -141,7 +166,7 @@ export async function sendInternshipApplicationEmail(application, resume) {
               ${resumeLink ? `<tr><td style="padding:9px 0;color:#6d6878">Resume Link</td><td style="padding:9px 0"><a href="${resumeLink}" target="_blank" style="color:#7347ee">${resumeLink}</a></td></tr>` : ""}
             </table>
             <p style="margin:22px 0 0;padding:14px 16px;background:#f6f2ff;border-radius:12px;font-size:13px;color:#514b5c">
-              ${resume ? "The applicant's resume is attached to this email." : "The applicant provided an online resume link above."}
+              ${resume ? "The applicant's resume is attached to this email." : resumeLink ? "The applicant provided an online resume link above." : "The applicant will attach the resume in the WhatsApp follow-up chat."}
             </p>
           </div>
         </div>
@@ -153,6 +178,7 @@ export async function sendInternshipApplicationEmail(application, resume) {
         `Phone: ${application.phone}`,
         `College: ${application.college}`,
         resumeLink ? `Resume Link: ${resumeLink}` : "",
+        application.attachInWhatsApp ? "Resume: Applicant will attach it in the WhatsApp follow-up chat." : "",
         "",
         resume ? "The applicant's resume is attached." : "",
       ].filter(Boolean).join("\n"),
@@ -162,8 +188,20 @@ export async function sendInternshipApplicationEmail(application, resume) {
 
   const result = await response.json().catch(() => ({}));
   if (!response.ok) {
-    console.warn("Resend email delivery failed:", response.status, result);
-    return { id: "failed_delivery" };
+    console.error("Resend email delivery failed:", response.status, result);
+    throw createHttpError(
+      "We could not deliver the application email just now. Please try again or contact us on WhatsApp.",
+      502,
+      "EMAIL_DELIVERY_FAILED",
+    );
+  }
+
+  if (!result.id) {
+    throw createHttpError(
+      "The email provider did not confirm delivery. Please try again.",
+      502,
+      "EMAIL_DELIVERY_UNCONFIRMED",
+    );
   }
 
   return { id: result.id };

@@ -1,9 +1,9 @@
-import { lazy } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import AboutSection from "@/components/AboutSection";
 import DeferredSection from "@/components/DeferredSection";
 
+const AboutSection = lazy(() => import("@/components/AboutSection"));
 const ServicesSection = lazy(() => import("@/components/ServicesSection"));
 const ProjectsSection = lazy(() => import("@/components/ProjectsSection"));
 const WorkflowSection = lazy(() => import("@/components/WorkflowSection"));
@@ -16,25 +16,41 @@ const Footer = lazy(() => import("@/components/Footer"));
 const StickyContactBar = lazy(() => import("@/components/StickyContactBar"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 
+const IdleEnhancements = () => {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReady(true), 900);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  if (!ready) return null;
+  return (
+    <Suspense fallback={null}>
+      <StickyContactBar />
+      <WhatsAppButton />
+    </Suspense>
+  );
+};
+
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <main id="main-content">
         <HeroSection />
-        <AboutSection />
-        <DeferredSection minHeight="1050px"><ServicesSection /></DeferredSection>
-        <DeferredSection minHeight="1450px"><ProjectsSection /></DeferredSection>
-        <DeferredSection minHeight="760px"><WorkflowSection /></DeferredSection>
-        <DeferredSection minHeight="980px"><FYPSection /></DeferredSection>
-        <DeferredSection minHeight="1050px"><InternshipSection /></DeferredSection>
-        <DeferredSection minHeight="1100px"><UpcomingProjectsSection /></DeferredSection>
-        <DeferredSection minHeight="1050px"><ProjectAdvisor /></DeferredSection>
-        <DeferredSection minHeight="1200px"><ContactSection /></DeferredSection>
+        <DeferredSection sectionId="solutions" minHeight="1000px" mobileMinHeight="2040px" rootMargin="100px 0px"><AboutSection /></DeferredSection>
+        <DeferredSection sectionId="products" minHeight="1050px" mobileMinHeight="2090px"><ServicesSection /></DeferredSection>
+        <DeferredSection sectionId="pricing" minHeight="1450px" mobileMinHeight="2820px"><ProjectsSection /></DeferredSection>
+        <DeferredSection sectionId="process" minHeight="760px" mobileMinHeight="1580px"><WorkflowSection /></DeferredSection>
+        <DeferredSection sectionId="fyp" minHeight="980px" mobileMinHeight="1320px"><FYPSection /></DeferredSection>
+        <DeferredSection sectionId="resources" minHeight="1050px" mobileMinHeight="1460px"><InternshipSection /></DeferredSection>
+        <DeferredSection sectionId="upcoming" minHeight="1100px" mobileMinHeight="1640px"><UpcomingProjectsSection /></DeferredSection>
+        <DeferredSection sectionId="advisor" minHeight="1050px" mobileMinHeight="1460px"><ProjectAdvisor /></DeferredSection>
+        <DeferredSection sectionId="contact" minHeight="1200px" mobileMinHeight="1970px"><ContactSection /></DeferredSection>
       </main>
       <DeferredSection minHeight="420px" rootMargin="900px 0px"><Footer /></DeferredSection>
-      <DeferredSection minHeight="0px" rootMargin="0px"><StickyContactBar /></DeferredSection>
-      <DeferredSection minHeight="0px" rootMargin="0px"><WhatsAppButton /></DeferredSection>
+      <IdleEnhancements />
     </div>
   );
 };

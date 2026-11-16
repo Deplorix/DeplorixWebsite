@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import StartProjectDialog from "./StartProjectDialog";
 import logo from "@/assets/deplorix-logo.png";
+
+const StartProjectDialog = lazy(() => import("./StartProjectDialog"));
 
 const navLinks = [
   { label: "About", href: "#solutions" },
@@ -42,23 +43,41 @@ const Navbar = () => {
 
   useEffect(() => {
     if (!isHome) return;
-    const sections = Array.from(document.querySelectorAll<HTMLElement>("main section[id]"));
-
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
         if (visible) {
-          const visibleHash = `#${visible.target.id}`;
+          const target = visible.target as HTMLElement;
+          const sectionId = target.id || target.dataset.deferredSection || "";
+          const visibleHash = sectionId ? `#${sectionId}` : "";
           setActiveHash(navLinks.some((link) => link.href === visibleHash) ? visibleHash : "");
         }
       },
       { rootMargin: "-30% 0px -55%", threshold: [0, 0.15, 0.4] },
     );
 
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+    const observed = new Set<Element>();
+    const observeSections = () => {
+      document
+        .querySelectorAll<HTMLElement>("main section[id], main [data-deferred-section]")
+        .forEach((section) => {
+          if (observed.has(section)) return;
+          observed.add(section);
+          observer.observe(section);
+        });
+    };
+
+    observeSections();
+    const main = document.querySelector("main");
+    const mutationObserver = new MutationObserver(observeSections);
+    if (main) mutationObserver.observe(main, { childList: true, subtree: true });
+
+    return () => {
+      mutationObserver.disconnect();
+      observer.disconnect();
+    };
   }, [isHome]);
 
   useEffect(() => {
@@ -251,7 +270,11 @@ const Navbar = () => {
         />
       </motion.header>
 
-      <StartProjectDialog open={projectOpen} onOpenChange={setProjectOpen} />
+      {projectOpen && (
+        <Suspense fallback={null}>
+          <StartProjectDialog open={projectOpen} onOpenChange={setProjectOpen} />
+        </Suspense>
+      )}
     </>
   );
 };

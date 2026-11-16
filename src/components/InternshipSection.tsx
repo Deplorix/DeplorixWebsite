@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import internshipImg from "@/assets/internship.jpg";
 import { submitInternshipApplication } from "@/lib/api";
 
-const WHATSAPP_NUMBER = "916360327386";
-const DISPLAY_PHONE = "+91 63603 27386";
+const WHATSAPP_NUMBER = "919945831090";
+const DISPLAY_PHONE = "+91 99458 31090";
 
 const journey = [
   {
@@ -39,7 +39,7 @@ const outcomes = [
   { icon: CheckCircle2, label: "Placement readiness" },
 ];
 
-const MAX_RESUME_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_RESUME_BYTES = 3 * 1024 * 1024; // Keep the encoded request below common serverless limits.
 
 const fileToBase64 = (file: File) =>
   new Promise<string>((resolve, reject) => {
@@ -95,7 +95,7 @@ const InternshipSection = () => {
   const [lastWaUrl, setLastWaUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleApply = (event: React.FormEvent) => {
+  const handleApply = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
 
@@ -110,7 +110,7 @@ const InternshipSection = () => {
     }
 
     if (resume && resume.size > MAX_RESUME_BYTES) {
-      setError("Your resume file must be 5 MB or smaller.");
+      setError("Your resume file must be 3 MB or smaller.");
       return;
     }
 
@@ -131,43 +131,31 @@ const InternshipSection = () => {
     const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(waText)}`;
     setLastWaUrl(waUrl);
 
-    // CRITICAL FOR WHATSAPP FORM: Open WhatsApp immediately and synchronously on user click
-    // This guarantees browsers and mobile operating systems do not block it as an async popup
-    const newWin = window.open(waUrl, "_blank", "noopener,noreferrer");
-    if (!newWin || newWin.closed || typeof newWin.closed === "undefined") {
-      // Fallback if popup blocker intercepted
-      console.log("Popup intercepted or running in webview, providing instant tap-to-open button");
-    }
+    const whatsappWindow = window.open("about:blank", "_blank");
 
-    setSent(true);
+    try {
+      const resumeData = resume ? await fileToBase64(resume) : undefined;
+      await submitInternshipApplication({
+        ...form,
+        resumeLink: resumeLink.trim() || undefined,
+        attachInWhatsApp: sendInChat,
+        resume: resume && resumeData ? {
+          name: resume.name,
+          type: resume.type || "application/pdf",
+          data: resumeData,
+        } : null,
+      });
 
-    // Non-blocking background sync to database / API
-    (async () => {
-      try {
-        let resumeData: string | undefined = undefined;
-        if (resume) {
-          try {
-            resumeData = await fileToBase64(resume);
-          } catch (e) {
-            console.warn("Could not encode resume base64:", e);
-          }
-        }
-
-        await submitInternshipApplication({
-          ...form,
-          resumeLink: resumeLink.trim() || undefined,
-          resume: resume && resumeData ? {
-            name: resume.name,
-            type: resume.type || "application/pdf",
-            data: resumeData,
-          } : null,
-        });
-      } catch (submissionError) {
-        console.warn("Background API notification:", submissionError);
-      } finally {
-        setSubmitting(false);
+      if (whatsappWindow && !whatsappWindow.closed) {
+        whatsappWindow.location.href = waUrl;
       }
-    })();
+      setSent(true);
+    } catch (submissionError) {
+      whatsappWindow?.close();
+      setError(submissionError instanceof Error ? submissionError.message : "We couldn't send your application. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleResume = (file: File | null) => {
@@ -185,7 +173,7 @@ const InternshipSection = () => {
     }
     if (file.size > MAX_RESUME_BYTES) {
       setResume(null);
-      setError("Your resume must be 5 MB or smaller.");
+      setError("Your resume must be 3 MB or smaller.");
       return;
     }
     setResume(file);
@@ -272,12 +260,12 @@ const InternshipSection = () => {
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[#25D366]/15 px-3 py-1 text-xs font-bold text-[#128C7E]">
                 <MessageCircle size={14} className="fill-[#25D366] text-[#25D366]" />
-                WhatsApp Application Form
+                Internship Application
               </span>
             </div>
             <DialogTitle className="text-2xl mt-1">Apply for Internship</DialogTitle>
             <DialogDescription>
-              Submit your details directly to our WhatsApp admissions desk at <strong className="text-foreground">{DISPLAY_PHONE}</strong>.
+              Your details and resume are emailed directly to our careers inbox. After confirmation, we also open WhatsApp at <strong className="text-foreground">{DISPLAY_PHONE}</strong> for an easy follow-up.
             </DialogDescription>
           </DialogHeader>
 
@@ -287,10 +275,10 @@ const InternshipSection = () => {
                 <MessageCircle size={28} className="fill-white" />
               </span>
               <h3 className="mt-4 font-display text-xl font-bold text-foreground">
-                WhatsApp Form Ready!
+                Application sent successfully!
               </h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Your application details have been formatted and sent to WhatsApp at <strong>{DISPLAY_PHONE}</strong>.
+                Your application was emailed directly to our careers inbox. We also prepared a WhatsApp chat with <strong>{DISPLAY_PHONE}</strong> as a convenient follow-up.
               </p>
 
               {lastSubmittedResumeName && (
@@ -428,7 +416,7 @@ const InternshipSection = () => {
                       className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card px-4 py-2.5 text-xs font-semibold transition-colors hover:border-brand/40 hover:bg-brand-soft"
                     >
                       <Upload size={15} className="shrink-0 text-brand" />
-                      <span>Upload Resume Document (PDF / DOCX, max 5 MB)</span>
+                      <span>Upload Resume Document (PDF / DOCX, max 3 MB)</span>
                     </label>
                     <input
                       id="intern-resume"
@@ -515,12 +503,12 @@ const InternshipSection = () => {
               >
                 {submitting ? (
                   <>
-                    <Loader2 size={16} className="animate-spin text-white" /> Sending to WhatsApp…
+                    <Loader2 size={16} className="animate-spin text-white" /> Sending application…
                   </>
                 ) : (
                   <>
                     <MessageCircle size={18} className="fill-white stroke-white" />
-                    Send Application on WhatsApp ({DISPLAY_PHONE})
+                    Email application & open WhatsApp
                   </>
                 )}
               </Button>

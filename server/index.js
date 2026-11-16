@@ -69,9 +69,9 @@ app.post("/api/internship", async (req, res) => {
     try {
       const saved = await saveInternshipApplication({
         ...prepared.application,
-        resumeName: prepared.resume.name,
-        resumeType: prepared.resume.type,
-        resumeSize: prepared.resume.size,
+        resumeName: prepared.resume ? prepared.resume.name : null,
+        resumeType: prepared.resume ? prepared.resume.type : null,
+        resumeSize: prepared.resume ? prepared.resume.size : null,
         emailId: email.id,
       });
       savedId = saved.id;

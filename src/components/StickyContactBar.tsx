@@ -19,16 +19,21 @@ const StickyContactBar = () => {
   const division = getDivision(ctx.divisionId);
 
   useEffect(() => {
+    let frame = 0;
     const onScroll = () => {
-      const y = window.scrollY;
-      const nearBottom =
-        y + window.innerHeight > document.documentElement.scrollHeight - 700;
-      const form = document.getElementById("service-inquiry");
-      const formVisible = form
-        ? form.getBoundingClientRect().top < window.innerHeight * 0.9 &&
-          form.getBoundingClientRect().bottom > 0
-        : false;
-      setVisible(!dismissed && y > window.innerHeight * 0.8 && !nearBottom && !formVisible);
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const y = window.scrollY;
+        const nearBottom =
+          y + window.innerHeight > document.documentElement.scrollHeight - 700;
+        const form = document.getElementById("service-inquiry");
+        const formBounds = form?.getBoundingClientRect();
+        const formVisible = formBounds
+          ? formBounds.top < window.innerHeight * 0.9 && formBounds.bottom > 0
+          : false;
+        setVisible(!dismissed && y > window.innerHeight * 0.8 && !nearBottom && !formVisible);
+      });
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -36,6 +41,7 @@ const StickyContactBar = () => {
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
     };
   }, [dismissed]);
 

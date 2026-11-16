@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import StartProjectDialog from "./StartProjectDialog";
 import LogoStrip from "./LogoStrip";
 import Hero3DScene from "./Hero3DScene";
 import BrandXMark from "./BrandXMark";
 
 const ease = [0.22, 1, 0.36, 1] as const;
+const StartProjectDialog = lazy(() => import("./StartProjectDialog"));
 
 const HeroSection = () => {
   const [projectOpen, setProjectOpen] = useState(false);
@@ -126,7 +126,11 @@ const HeroSection = () => {
 
       <LogoStrip />
 
-      <StartProjectDialog open={projectOpen} onOpenChange={setProjectOpen} />
+      {projectOpen && (
+        <Suspense fallback={null}>
+          <StartProjectDialog open={projectOpen} onOpenChange={setProjectOpen} />
+        </Suspense>
+      )}
     </section>
   );
 };
