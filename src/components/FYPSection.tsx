@@ -128,6 +128,7 @@ const FYPSection = () => {
                         variant={isFeatured ? "brand" : "hero-outline"}
                         className="min-h-11 w-full touch-manipulation font-semibold active:scale-[0.985] sm:w-auto"
                         onClick={() => startPlan(level.name)}
+                        aria-label={`Discuss ${level.name} support option`}
                       >
                         Discuss this option <ArrowRight size={15} />
                       </Button>

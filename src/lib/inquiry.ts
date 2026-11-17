@@ -13,9 +13,17 @@ const PENDING_KEY = "deplorix:pending-inquiry";
 export const openInquiry = (divisionId: string, extra: Omit<InquiryDetail, "divisionId"> = {}) => {
   const detail: InquiryDetail = { divisionId, ...extra };
   if (!document.getElementById("service-inquiry")) {
-    // Form lives on the home page — carry the context across the navigation.
     sessionStorage.setItem(PENDING_KEY, JSON.stringify(detail));
-    window.location.href = `/?division=${encodeURIComponent(divisionId)}#service-inquiry`;
+    const contactSection = document.querySelector<HTMLElement>('[data-deferred-section="contact"]');
+    const destination = `/?division=${encodeURIComponent(divisionId)}#contact`;
+
+    if (window.location.pathname === "/" && contactSection) {
+      window.history.replaceState(null, "", destination);
+      contactSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    window.location.href = destination;
     return;
   }
   window.dispatchEvent(new CustomEvent<InquiryDetail>(INQUIRY_EVENT, { detail }));
