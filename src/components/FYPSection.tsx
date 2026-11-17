@@ -69,11 +69,13 @@ const FYPSection = () => {
           </div>
 
           <div className="min-w-0 rounded-[1.75rem] border border-border/70 bg-card p-4 shadow-[var(--shadow-soft)] sm:rounded-[2rem] sm:p-7 md:rounded-[2.5rem] md:p-10">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-bold uppercase tracking-[0.13em] text-muted-foreground">
+            <div className="flex items-start justify-between gap-3">
+              <p className="min-w-0 text-[11px] font-bold uppercase leading-4 tracking-[0.12em] text-muted-foreground sm:text-xs sm:tracking-[0.13em]">
                 Choose your level of support
               </p>
-              <span className="text-[10px] font-semibold text-brand sm:hidden">3 options</span>
+              <span className="shrink-0 whitespace-nowrap pt-0.5 text-[10px] font-semibold text-brand sm:hidden">
+                3 options
+              </span>
             </div>
 
             <div className="mt-5 flex flex-col gap-4 sm:gap-5 lg:mt-6 lg:block lg:gap-0 lg:p-0">
@@ -124,7 +126,7 @@ const FYPSection = () => {
                     <div className="pt-2 lg:pt-0">
                       <Button
                         variant={isFeatured ? "brand" : "hero-outline"}
-                        className="min-h-11 w-full font-semibold sm:w-auto"
+                        className="min-h-11 w-full touch-manipulation font-semibold active:scale-[0.985] sm:w-auto"
                         onClick={() => startPlan(level.name)}
                       >
                         Discuss this option <ArrowRight size={15} />
