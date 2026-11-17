@@ -21,7 +21,7 @@ export async function getDb() {
   if (!client) {
     client = new MongoClient(uri, {
       maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 15000,
     });
     clientPromise = client.connect().catch(async (error) => {
       const failedClient = client;

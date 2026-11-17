@@ -13,7 +13,7 @@ export async function getDb() {
   if (!cachedClient) {
     const nextClient = new MongoClient(uri, {
       maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 15000,
     });
     try {
       await nextClient.connect();
