@@ -16,7 +16,7 @@ const LogoStrip = ({ label = "Built with the stacks modern teams trust" }: { lab
   <div className="relative border-t border-border/60 bg-card/40 backdrop-blur-sm">
     <p className="sr-only">{label}</p>
     <div className="max-w-7xl mx-auto overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)]">
-      <div className="flex w-max animate-marquee items-center gap-16 py-6 hover:[animation-play-state:paused] cursor-default select-none">
+      <div className="logo-marquee-track flex w-max animate-marquee items-center gap-16 py-6 cursor-default select-none">
         {[...items, ...items].map((item, i) => (
           <span
             key={`${item.name}-${i}`}
