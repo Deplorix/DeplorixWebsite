@@ -1,5 +1,5 @@
 import { ArrowUpRight, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/deplorix-logo.png";
 import BrandXMark from "./BrandXMark";
 
@@ -39,18 +39,52 @@ const socials = [
   { icon: Instagram, href: "https://www.instagram.com/deplorixtechnologies/", label: "Instagram" },
 ];
 
-const Footer = () => (
-  <footer className="relative isolate mx-2 overflow-hidden rounded-t-[2rem] bg-foreground text-white sm:mx-3 md:mx-5 md:rounded-t-[2.5rem]">
-    <BrandXMark className="absolute -bottom-36 -right-20 -z-10 w-[460px] opacity-[0.09] sm:w-[620px]" />
-    <div className="site-container relative px-6 py-14 md:px-12 md:py-20">
-      <div className="grid gap-12 border-b border-white/10 pb-12 lg:grid-cols-[1.25fr_1.75fr] lg:gap-20">
-        <div>
-          <Link to="/" className="inline-flex items-center gap-3 text-white" aria-label="DeploriX Technologies home">
-            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white">
-              <img src={logo} alt="" className="h-9 w-9 rounded-full object-contain" width={36} height={36} />
-            </span>
-            <span className="font-display text-xl font-extrabold tracking-[-0.035em]">deploriX</span>
-          </Link>
+const Footer = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (location.pathname === "/") {
+      e.preventDefault();
+      if (window.location.hash || window.location.search) {
+        window.history.pushState(null, "", "/");
+      }
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth",
+      });
+      document.documentElement.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      document.body.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    } else {
+      navigate("/");
+      window.setTimeout(() => {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "smooth",
+        });
+      }, 50);
+    }
+  };
+
+  return (
+    <footer className="relative isolate mx-2 overflow-hidden rounded-t-[2rem] bg-foreground text-white sm:mx-3 md:mx-5 md:rounded-t-[2.5rem]">
+      <BrandXMark className="absolute -bottom-36 -right-20 -z-10 w-[460px] opacity-[0.09] sm:w-[620px]" />
+      <div className="site-container relative px-6 py-14 md:px-12 md:py-20">
+        <div className="grid gap-12 border-b border-white/10 pb-12 lg:grid-cols-[1.25fr_1.75fr] lg:gap-20">
+          <div>
+            <Link
+              to="/"
+              onClick={handleLogoClick}
+              className="inline-flex items-center gap-3 text-white"
+              aria-label="DeploriX Technologies home"
+            >
+              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white">
+                <img src={logo} alt="" className="h-9 w-9 rounded-full object-contain" width={36} height={36} />
+              </span>
+              <span className="font-display text-xl font-extrabold tracking-[-0.035em]">deploriX</span>
+            </Link>
           <p className="mt-6 max-w-sm text-sm leading-6 text-white/65">
             A Bangalore-based product and digital studio helping businesses and students move from idea to launch.
           </p>
@@ -101,6 +135,7 @@ const Footer = () => (
       </div>
     </div>
   </footer>
-);
+  );
+};
 
 export default Footer;

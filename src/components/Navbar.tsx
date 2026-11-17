@@ -157,6 +157,34 @@ const Navbar = () => {
     window.history.replaceState(null, "", href);
   };
 
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    setMobileOpen(false);
+    setActiveHash("");
+
+    if (isHome) {
+      e.preventDefault();
+      if (window.location.hash || window.location.search) {
+        window.history.pushState(null, "", "/");
+      }
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth",
+      });
+      document.documentElement.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      document.body.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    } else {
+      navigate("/");
+      window.setTimeout(() => {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "smooth",
+        });
+      }, 50);
+    }
+  };
+
   const isActive = (href: string) =>
     href.startsWith("/") ? location.pathname === href : isHome && activeHash === href;
 
@@ -171,7 +199,12 @@ const Navbar = () => {
         }`}
       >
         <nav className="site-container flex h-[72px] items-center justify-between gap-4 px-5 md:h-20 md:px-10" aria-label="Main navigation">
-          <Link to="/" className="group flex shrink-0 items-center gap-2.5 text-foreground" aria-label="DeploriX Technologies home">
+          <Link
+            to="/"
+            onClick={handleLogoClick}
+            className="group flex shrink-0 items-center gap-2.5 text-foreground"
+            aria-label="DeploriX Technologies home"
+          >
             <span className="grid h-10 w-10 place-items-center rounded-2xl border border-border/70 bg-card shadow-[var(--shadow-soft)] transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105">
               <img src={logo} alt="" className="h-8 w-8 rounded-full object-contain" width={32} height={32} />
             </span>
