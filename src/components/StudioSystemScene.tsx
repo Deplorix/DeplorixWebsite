@@ -7,6 +7,7 @@ import {
 } from "react";
 import {
   motion,
+  useInView,
   useMotionValue,
   useReducedMotion,
   useSpring,
@@ -48,6 +49,8 @@ const stages = [
 
 const StudioSystemScene = () => {
   const reduceMotion = useReducedMotion();
+  const sceneRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sceneRef, { amount: 0.15 });
   const titleId = useId();
   const descriptionId = useId();
   const [hasFinePointer, setHasFinePointer] = useState(false);
@@ -62,7 +65,7 @@ const StudioSystemScene = () => {
   const rotateX = useSpring(mappedRotateX, { stiffness: 170, damping: 24, mass: 0.65 });
   const rotateY = useSpring(mappedRotateY, { stiffness: 170, damping: 24, mass: 0.65 });
   const interactiveMotion = hasFinePointer && !reduceMotion;
-  const ambientMotion = false;
+  const ambientMotion = isInView && !reduceMotion;
 
   useEffect(() => {
     const media = window.matchMedia(finePointerQuery);
@@ -99,6 +102,7 @@ const StudioSystemScene = () => {
 
   return (
     <motion.figure
+      ref={sceneRef}
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
       initial={reduceMotion ? false : { opacity: 0, y: 24, scale: 0.97 }}
@@ -127,9 +131,30 @@ const StudioSystemScene = () => {
 
       <motion.div
         className="absolute inset-x-1 bottom-5 top-5 sm:inset-x-5 sm:bottom-7 sm:top-7"
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        animate={
+          ambientMotion
+            ? hasFinePointer
+              ? { y: [0, -4, 0], rotateZ: [-0.2, 0.2, -0.2] }
+              : {
+                  y: [0, -5, 0],
+                  rotateX: [-1.3, 0.9, -1.3],
+                  rotateY: [-2, 2, -2],
+                  rotateZ: [-0.25, 0.25, -0.25],
+                }
+            : { y: 0, rotateX: 0, rotateY: 0, rotateZ: 0 }
+        }
+        transition={
+          ambientMotion
+            ? { duration: hasFinePointer ? 8.5 : 10, repeat: Infinity, ease: "easeInOut" }
+            : { duration: 0.25 }
+        }
+        style={{ transformStyle: "preserve-3d" }}
         aria-hidden="true"
       >
+        <motion.div
+          className="absolute inset-0"
+          style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        >
         <div
           className="absolute inset-[12%_4%_8%_9%] rounded-[2rem] border border-brand/20 bg-brand/10 sm:rounded-[2.5rem]"
           style={{
@@ -357,6 +382,7 @@ const StudioSystemScene = () => {
           className="absolute left-[2%] top-[19%] h-4 w-4 rounded-full border-[4px] border-[#0d0b13] bg-peach shadow-[0_0_26px_hsl(var(--peach)/0.9)] sm:h-5 sm:w-5 sm:border-[5px]"
           style={{ transform: "translateZ(72px)" }}
         />
+        </motion.div>
       </motion.div>
     </motion.figure>
   );

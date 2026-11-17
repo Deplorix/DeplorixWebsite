@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
   motion,
+  useInView,
   useMotionValue,
   useReducedMotion,
   useSpring,
@@ -14,6 +15,8 @@ const finePointerQuery = "(hover: hover) and (pointer: fine)";
 
 const Hero3DScene = () => {
   const reduceMotion = useReducedMotion();
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(sceneRef, { amount: 0.15 });
   const [hasFinePointer, setHasFinePointer] = useState(
     () => typeof window !== "undefined" && window.matchMedia(finePointerQuery).matches,
   );
@@ -28,7 +31,7 @@ const Hero3DScene = () => {
   const rotateX = useSpring(rawRotateX, { stiffness: 150, damping: 22, mass: 0.7 });
   const rotateY = useSpring(rawRotateY, { stiffness: 150, damping: 22, mass: 0.7 });
   const interactiveMotion = hasFinePointer && !reduceMotion;
-  const ambientMotion = false;
+  const ambientMotion = isInView && !reduceMotion;
 
   useEffect(() => {
     const media = window.matchMedia(finePointerQuery);
@@ -64,6 +67,7 @@ const Hero3DScene = () => {
 
   return (
     <motion.div
+      ref={sceneRef}
       initial={reduceMotion ? false : { opacity: 0, x: 34, scale: 0.96 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
       transition={{ duration: reduceMotion ? 0 : 0.9, delay: reduceMotion ? 0 : 0.18, ease }}
@@ -84,8 +88,29 @@ const Hero3DScene = () => {
 
       <motion.div
         className="absolute inset-x-3 bottom-4 top-2 sm:inset-x-6 sm:bottom-8 sm:top-8"
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        animate={
+          ambientMotion
+            ? hasFinePointer
+              ? { y: [0, -5, 0], rotateZ: [-0.25, 0.25, -0.25] }
+              : {
+                  y: [0, -6, 0],
+                  rotateX: [-1.6, 1.1, -1.6],
+                  rotateY: [-2.4, 2.4, -2.4],
+                  rotateZ: [-0.3, 0.3, -0.3],
+                }
+            : { y: 0, rotateX: 0, rotateY: 0, rotateZ: 0 }
+        }
+        transition={
+          ambientMotion
+            ? { duration: hasFinePointer ? 8 : 9.5, repeat: Infinity, ease: "easeInOut" }
+            : { duration: 0.25 }
+        }
+        style={{ transformStyle: "preserve-3d" }}
       >
+        <motion.div
+          className="absolute inset-0"
+          style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        >
         <div
           className="absolute inset-x-[9%] bottom-[2%] h-[22%] rounded-[50%] bg-foreground/15 blur-2xl"
           style={{ transform: "translate3d(0, 28px, -120px) rotateX(72deg)" }}
@@ -209,6 +234,7 @@ const Hero3DScene = () => {
           style={{ transform: "translateZ(-24px)" }}
           aria-hidden="true"
         />
+        </motion.div>
       </motion.div>
     </motion.div>
   );

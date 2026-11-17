@@ -3,7 +3,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
-import { getDb, saveInquiry, saveInternshipApplication } from "./db.js";
+import { getDb, saveInquiry } from "./db.js";
 import { prepareInquiry, publicInquiryError } from "./inquiry.js";
 import {
   prepareInternshipApplication,
@@ -57,25 +57,11 @@ app.post("/api/internship", async (req, res) => {
     }
 
     const email = await sendInternshipApplicationEmail(prepared.application, prepared.resume);
-    let savedId = null;
-    try {
-      const saved = await saveInternshipApplication({
-        ...prepared.application,
-        resumeName: prepared.resume ? prepared.resume.name : null,
-        resumeType: prepared.resume ? prepared.resume.type : null,
-        resumeSize: prepared.resume ? prepared.resume.size : null,
-        emailId: email.id,
-      });
-      savedId = saved.id;
-    } catch (databaseError) {
-      console.error("Internship application emailed but database logging failed:", databaseError);
-    }
 
     res.status(201).json({
       success: true,
       message: "Application emailed successfully",
       emailId: email.id,
-      id: savedId,
     });
   } catch (error) {
     console.error("Error emailing internship application:", error);
