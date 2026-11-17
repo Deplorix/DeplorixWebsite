@@ -48,11 +48,11 @@ const inquirySchema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(/^[+]?[\d\s-]{8,18}$/, { message: "Enter a valid phone number (8–18 digits)." }),
+    .regex(/^[+]?[\d\s\-().]{6,25}$/, { message: "Enter a valid phone number." }),
   message: z
     .string()
     .trim()
-    .min(20, { message: "Tell us a little more — at least 20 characters." })
+    .min(2, { message: "Please enter your message or project requirement." })
     .max(1000, { message: "Please keep it under 1000 characters." }),
 });
 

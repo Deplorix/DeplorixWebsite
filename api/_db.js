@@ -1,14 +1,14 @@
 import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGODB_URI;
-const dbName = process.env.MONGODB_DB_NAME || "deplorix";
-
 let cachedClient = null;
 let cachedDb = null;
 
 export async function getDb() {
-  if (cachedDb) return cachedDb;
+  const uri = process.env.MONGODB_URI;
+  const dbName = process.env.MONGODB_DB_NAME || "deplorix";
+
   if (!uri) throw new Error("MONGODB_URI environment variable is not defined");
+  if (cachedDb) return cachedDb;
 
   if (!cachedClient) {
     const nextClient = new MongoClient(uri, {

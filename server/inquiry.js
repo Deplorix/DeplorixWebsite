@@ -29,14 +29,14 @@ export function prepareInquiry(payload) {
 
   const name = requiredText(payload.name, "Full name", 2, 100).replace(/\s+/g, " ");
   const email = requiredText(payload.email, "Email address", 3, 254).toLowerCase();
-  const phone = requiredText(payload.phone, "Phone number", 8, 18).replace(/\s+/g, " ");
-  const message = requiredText(payload.message, "Message", 20, 1000);
+  const phone = requiredText(payload.phone, "Phone number", 6, 25).replace(/\s+/g, " ");
+  const message = requiredText(payload.message, "Message", 2, 1000);
   const division = ALLOWED_DIVISIONS.has(payload.division) ? payload.division : "tech";
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw createHttpError("Enter a valid email address");
   }
-  if (!/^[+]?[-\d\s()]{8,18}$/.test(phone)) {
+  if (!/^[+]?[\d\s\-().]{6,25}$/.test(phone)) {
     throw createHttpError("Enter a valid phone number");
   }
 

@@ -46,7 +46,9 @@ async function requestJson(endpoint: string, init?: RequestInit) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data.error || data.message || `Request failed with status ${response.status}`);
+    const errorMsg = data.error || data.message || `Request failed with status ${response.status}`;
+    const fullMsg = data.details && data.details !== data.error ? `${errorMsg} (${data.details})` : errorMsg;
+    throw new Error(fullMsg);
   }
 
   return data;

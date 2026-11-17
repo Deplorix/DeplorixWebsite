@@ -1,5 +1,8 @@
+import dotenv from "dotenv";
 import { getDb, saveInquiry } from "./db.js";
 import { prepareInquiry, publicInquiryError } from "./inquiry.js";
+
+dotenv.config();
 import {
   prepareInternshipApplication,
   publicInternshipError,

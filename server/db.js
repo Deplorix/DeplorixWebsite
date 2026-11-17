@@ -3,17 +3,13 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const uri = process.env.MONGODB_URI;
-const dbName = process.env.MONGODB_DB_NAME || "deplorix";
-
-if (!uri) {
-  console.warn("⚠️ MONGODB_URI is not set in environment variables.");
-}
-
 let client;
 let clientPromise;
 
 export async function getDb() {
+  const uri = process.env.MONGODB_URI;
+  const dbName = process.env.MONGODB_DB_NAME || "deplorix";
+
   if (!uri) {
     throw new Error("MONGODB_URI is not set in environment variables.");
   }

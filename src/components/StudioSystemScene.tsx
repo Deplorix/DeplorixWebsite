@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useId,
   useRef,
@@ -54,16 +55,19 @@ const StudioSystemScene = () => {
   const titleId = useId();
   const descriptionId = useId();
   const [hasFinePointer, setHasFinePointer] = useState(false);
+  const [sceneHovered, setSceneHovered] = useState(false);
 
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
   const pointerBounds = useRef<DOMRect | null>(null);
   const pointerFrame = useRef(0);
   const pendingPointer = useRef({ x: 0, y: 0 });
-  const mappedRotateY = useTransform(pointerX, [-0.5, 0.5], [-4.5, 4.5]);
-  const mappedRotateX = useTransform(pointerY, [-0.5, 0.5], [3.5, -3.5]);
-  const rotateX = useSpring(mappedRotateX, { stiffness: 170, damping: 24, mass: 0.65 });
-  const rotateY = useSpring(mappedRotateY, { stiffness: 170, damping: 24, mass: 0.65 });
+  const mappedRotateY = useTransform(pointerX, [-0.5, 0.5], [-7, 7]);
+  const mappedRotateX = useTransform(pointerY, [-0.5, 0.5], [5.25, -5.25]);
+  const mappedShiftX = useTransform(pointerX, [-0.5, 0.5], [-4, 4]);
+  const rotateX = useSpring(mappedRotateX, { stiffness: 180, damping: 25, mass: 0.65 });
+  const rotateY = useSpring(mappedRotateY, { stiffness: 180, damping: 25, mass: 0.65 });
+  const sceneX = useSpring(mappedShiftX, { stiffness: 190, damping: 26, mass: 0.6 });
   const interactiveMotion = hasFinePointer && !reduceMotion;
   const ambientMotion = isInView && !reduceMotion;
 
@@ -92,13 +96,22 @@ const StudioSystemScene = () => {
     });
   };
 
-  const resetTilt = () => {
+  const resetTilt = useCallback(() => {
+    setSceneHovered(false);
     pointerBounds.current = null;
     if (pointerFrame.current) window.cancelAnimationFrame(pointerFrame.current);
     pointerFrame.current = 0;
     pointerX.set(0);
     pointerY.set(0);
-  };
+  }, [pointerX, pointerY]);
+
+  useEffect(() => {
+    if (!interactiveMotion) resetTilt();
+
+    return () => {
+      if (pointerFrame.current) window.cancelAnimationFrame(pointerFrame.current);
+    };
+  }, [interactiveMotion, resetTilt]);
 
   return (
     <motion.figure
@@ -110,6 +123,9 @@ const StudioSystemScene = () => {
       viewport={{ once: true, amount: 0.35 }}
       transition={{ duration: reduceMotion ? 0 : 0.8, ease: entranceEase }}
       onPointerMove={handlePointerMove}
+      onPointerEnter={() => {
+        if (interactiveMotion) setSceneHovered(true);
+      }}
       onPointerLeave={resetTilt}
       onPointerCancel={resetTilt}
       className="relative mx-auto h-[430px] w-full max-w-[640px] sm:h-[500px] lg:mx-0 lg:h-[560px]"
@@ -152,8 +168,24 @@ const StudioSystemScene = () => {
         aria-hidden="true"
       >
         <motion.div
-          className="absolute inset-0"
-          style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+          className="absolute inset-0 will-change-transform"
+          animate={
+            sceneHovered && interactiveMotion
+              ? { scale: 1.024, y: -6, z: 20 }
+              : { scale: 1, y: 0, z: 0 }
+          }
+          transition={
+            reduceMotion
+              ? { duration: 0 }
+              : { type: "spring", stiffness: 220, damping: 24, mass: 0.65 }
+          }
+          style={{
+            rotateX,
+            rotateY,
+            x: sceneX,
+            transformOrigin: "50% 50%",
+            transformStyle: "preserve-3d",
+          }}
         >
         <div
           className="absolute inset-[12%_4%_8%_9%] rounded-[2rem] border border-brand/20 bg-brand/10 sm:rounded-[2.5rem]"

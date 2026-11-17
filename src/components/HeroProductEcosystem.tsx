@@ -131,6 +131,13 @@ const HeroProductEcosystem = () => {
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (!motionEnabled || !hasFinePointer) return;
+    const target = event.target as HTMLElement;
+    if (target.closest("[data-scene-interactive]")) {
+      pointerBounds.current = null;
+      pointerX.set(0);
+      pointerY.set(0);
+      return;
+    }
     pointerBounds.current ??= event.currentTarget.getBoundingClientRect();
     pendingPointer.current = { x: event.clientX, y: event.clientY };
     if (pointerFrame.current) return;

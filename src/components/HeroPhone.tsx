@@ -40,7 +40,6 @@ const HeroPhone = ({
 }: Props) => {
   const [internalIndex, setInternalIndex] = useState(0);
   const [localTime, setLocalTime] = useState(formatLocalTime);
-  const [ctaHovered, setCtaHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const pointerBounds = useRef<DOMRect | null>(null);
   const pointerFrame = useRef(0);
@@ -140,7 +139,7 @@ const HeroPhone = ({
           rotateY: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
           y: { duration: ambientMotion ? 6 : 0, repeat: ambientMotion ? Infinity : 0, ease: "easeInOut" },
         }}
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        style={{ rotateX, rotateY, transformStyle: showStats ? "preserve-3d" : "flat" }}
         className="relative"
       >
         {/* Phone body */}
@@ -239,29 +238,21 @@ const HeroPhone = ({
                   asChild
                   variant="hero"
                   size="sm"
-                  className={`group/phone-cta relative mt-3 w-full !translate-y-0 overflow-hidden border text-[12px] hover:!translate-y-0 active:scale-[0.985] ${
-                    ctaHovered
-                      ? "!border-brand/40 !bg-brand !text-brand-foreground !shadow-[0_0_0_3px_hsl(var(--brand)/0.14),0_14px_30px_-15px_hsl(var(--brand)/0.95)]"
-                      : "border-transparent"
-                  }`}
+                  className="group/phone-cta relative z-40 mt-3 w-full !translate-y-0 overflow-hidden border border-transparent text-[12px] hover:!translate-y-0 hover:!border-brand/40 hover:!bg-brand hover:!text-brand-foreground hover:!shadow-[0_0_0_3px_hsl(var(--brand)/0.14),0_14px_30px_-15px_hsl(var(--brand)/0.95)] focus-visible:!border-brand/40 focus-visible:!bg-brand focus-visible:!text-brand-foreground active:scale-[0.985]"
                 >
                   <Link
                     to={caseStudyHref(active.id)}
-                    data-hovered={ctaHovered}
-                    onPointerEnter={() => setCtaHovered(true)}
-                    onPointerLeave={() => setCtaHovered(false)}
+                    data-scene-interactive
                     onClick={() => trackEvent("hero_phone_cta_click", { division: active.id, source })}
                   >
                     <span
                       aria-hidden="true"
-                      className={`absolute inset-y-0 w-1/3 skew-x-[-18deg] bg-white/20 transition-[left,opacity] duration-500 ${
-                        ctaHovered ? "left-[115%] opacity-100" : "-left-1/3 opacity-0"
-                      }`}
+                      className="absolute inset-y-0 -left-1/3 w-1/3 skew-x-[-18deg] bg-white/20 opacity-0 transition-[left,opacity] duration-500 group-hover/phone-cta:left-[115%] group-hover/phone-cta:opacity-100 group-focus-visible/phone-cta:left-[115%] group-focus-visible/phone-cta:opacity-100"
                     />
                     <span className="relative">See case study</span>
                     <ArrowRight
                       size={13}
-                      className={`relative transition-transform duration-200 ${ctaHovered ? "translate-x-1" : "translate-x-0"}`}
+                      className="relative translate-x-0 transition-transform duration-200 group-hover/phone-cta:translate-x-1 group-focus-visible/phone-cta:translate-x-1"
                     />
                   </Link>
                 </Button>
