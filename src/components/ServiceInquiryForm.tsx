@@ -88,7 +88,7 @@ const ServiceInquiryForm = () => {
       }
 
       const inquiryForm = document.getElementById("service-inquiry");
-      inquiryForm?.scrollIntoView({ behavior: "smooth", block: "center" });
+      inquiryForm?.scrollIntoView({ behavior: "smooth", block: "start" });
       window.setTimeout(() => inquiryForm?.focus({ preventScroll: true }), 450);
     };
     window.addEventListener(INQUIRY_EVENT, handler);
@@ -98,7 +98,7 @@ const ServiceInquiryForm = () => {
       setDivisionId(param);
       if (window.location.hash === "#service-inquiry") {
         timers.push(window.setTimeout(
-          () => document.getElementById("service-inquiry")?.scrollIntoView({ behavior: "smooth", block: "center" }),
+          () => document.getElementById("service-inquiry")?.scrollIntoView({ behavior: "smooth", block: "start" }),
           300
         ));
       }
