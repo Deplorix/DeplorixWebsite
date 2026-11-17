@@ -38,7 +38,32 @@ const outcomes = [
   { icon: CheckCircle2, label: "Placement readiness" },
 ];
 
+<<<<<<< HEAD
 const MAX_RESUME_BYTES = 5 * 1024 * 1024; // 5 MB
+=======
+const MAX_RESUME_BYTES = 3 * 1024 * 1024; // Keep the encoded request below common serverless limits.
+
+const resumeMimeType = (file: File) => {
+  if (file.type) return file.type;
+  const name = file.name.toLowerCase();
+  if (name.endsWith(".docx")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  if (name.endsWith(".doc")) return "application/msword";
+  return "application/pdf";
+};
+
+const fileToBase64 = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === "string" ? reader.result : "";
+      const [, data = ""] = result.split(",", 2);
+      if (!data) reject(new Error("We couldn't read the selected resume."));
+      else resolve(data);
+    };
+    reader.onerror = () => reject(new Error("We couldn't read the selected resume."));
+    reader.readAsDataURL(file);
+  });
+>>>>>>> 5883b124ae8181b0b6fbfa7607ebc8998983125d
 
 const formatWhatsAppMessage = (data: {
   name: string;
@@ -117,11 +142,39 @@ const InternshipSection = () => {
     const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(waText)}`;
     setLastWaUrl(waUrl);
 
+<<<<<<< HEAD
     // Open WhatsApp immediately and synchronously — acts purely as a direct WhatsApp form
     const whatsappWindow = window.open(waUrl, "_blank", "noopener,noreferrer");
     if (!whatsappWindow || whatsappWindow.closed || typeof whatsappWindow.closed === "undefined") {
       // Fallback redirection if popup blocker intercepted
       window.location.href = waUrl;
+=======
+    const whatsappWindow = window.open("about:blank", "_blank");
+    if (whatsappWindow) whatsappWindow.opener = null;
+
+    try {
+      const resumeData = resume ? await fileToBase64(resume) : undefined;
+      await submitInternshipApplication({
+        ...form,
+        resumeLink: resumeLink.trim() || undefined,
+        attachInWhatsApp: sendInChat,
+        resume: resume && resumeData ? {
+          name: resume.name,
+          type: resumeMimeType(resume),
+          data: resumeData,
+        } : null,
+      });
+
+      if (whatsappWindow && !whatsappWindow.closed) {
+        whatsappWindow.location.href = waUrl;
+      }
+      setSent(true);
+    } catch (submissionError) {
+      whatsappWindow?.close();
+      setError(submissionError instanceof Error ? submissionError.message : "We couldn't send your application. Please try again.");
+    } finally {
+      setSubmitting(false);
+>>>>>>> 5883b124ae8181b0b6fbfa7607ebc8998983125d
     }
 
     setSent(true);
