@@ -49,8 +49,8 @@ const HeroProductEcosystem = () => {
   const [pageVisible, setPageVisible] = useState(
     () => typeof document === "undefined" || document.visibilityState === "visible",
   );
-  const [isHovered, setIsHovered] = useState(false);
   const [hasFocus, setHasFocus] = useState(false);
+  const [sceneHovered, setSceneHovered] = useState(false);
   const [manualPause, setManualPause] = useState(false);
   const [userPaused, setUserPaused] = useState(false);
 
@@ -60,9 +60,15 @@ const HeroProductEcosystem = () => {
   const mappedRotateX = useTransform(pointerY, [-0.5, 0.5], [3.8, -3.8]);
   const rotateX = useSpring(mappedRotateX, { stiffness: 145, damping: 23, mass: 0.7 });
   const rotateY = useSpring(mappedRotateY, { stiffness: 145, damping: 23, mass: 0.7 });
+  const pointerLift = useSpring(useTransform(pointerY, [-0.5, 0.5], [-5, 5]), {
+    stiffness: 150,
+    damping: 24,
+    mass: 0.65,
+  });
 
   const motionEnabled = isInView && pageVisible && !reduceMotion;
-  const autoCycle = motionEnabled && !isHovered && !hasFocus && !manualPause && !userPaused;
+  const automaticMotion = motionEnabled && !userPaused;
+  const autoCycle = automaticMotion && !hasFocus && !manualPause;
   const active = divisions[activeIndex];
   const featuredProject = projectsForDivision(active.id)[0];
   const progress = deliveryProgress[activeIndex];
@@ -147,20 +153,32 @@ const HeroProductEcosystem = () => {
   };
 
   const handleBlur = (event: FocusEvent<HTMLDivElement>) => {
-    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setHasFocus(false);
+    const nextTarget = event.relatedTarget as HTMLElement | null;
+    if (
+      !nextTarget ||
+      !event.currentTarget.contains(nextTarget) ||
+      nextTarget.closest("[data-showcase-toggle]")
+    ) {
+      setHasFocus(false);
+    }
+  };
+
+  const handleFocus = (event: FocusEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement;
+    setHasFocus(!target.closest("[data-showcase-toggle]"));
   };
 
   return (
     <div
       ref={rootRef}
       onPointerMove={handlePointerMove}
-      onPointerEnter={() => setIsHovered(true)}
+      onPointerEnter={() => setSceneHovered(true)}
       onPointerLeave={() => {
-        setIsHovered(false);
+        setSceneHovered(false);
         resetPointer();
       }}
       onPointerCancel={resetPointer}
-      onFocusCapture={() => setHasFocus(true)}
+      onFocusCapture={handleFocus}
       onBlurCapture={handleBlur}
       className="relative mx-auto h-[570px] w-full max-w-[660px] sm:h-[630px] lg:mx-0 lg:h-[590px]"
       style={{ perspective: "1650px" }}
@@ -172,19 +190,19 @@ const HeroProductEcosystem = () => {
       <div className="absolute left-1/2 top-1/2 h-[49%] w-[50%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-brand/10" aria-hidden />
 
       <motion.div
-        animate={motionEnabled ? { y: [0, -7, 0], rotateZ: [-0.3, 0.3, -0.3] } : { y: 0, rotateZ: 0 }}
-        transition={motionEnabled ? { duration: 9, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
+        animate={automaticMotion ? { y: [0, -7, 0], rotateZ: [-0.3, 0.3, -0.3] } : { y: 0, rotateZ: 0 }}
+        transition={automaticMotion ? { duration: 9, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
         className="absolute inset-0 will-change-transform"
         style={{ transformStyle: "preserve-3d" }}
       >
         <motion.div
           animate={
-            motionEnabled && !hasFinePointer
+            automaticMotion && !hasFinePointer
               ? { rotateX: [-1.3, 1, -1.3], rotateY: [-2.4, 2.4, -2.4] }
               : { rotateX: 0, rotateY: 0 }
           }
           transition={
-            motionEnabled && !hasFinePointer
+            automaticMotion && !hasFinePointer
               ? { duration: 10, repeat: Infinity, ease: "easeInOut" }
               : { duration: 0.2 }
           }
@@ -193,7 +211,9 @@ const HeroProductEcosystem = () => {
         >
           <motion.div
             className="absolute inset-0 will-change-transform"
-            style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+            animate={sceneHovered && motionEnabled ? { scale: 1.018 } : { scale: 1 }}
+            transition={{ duration: 0.32, ease }}
+            style={{ rotateX, rotateY, y: pointerLift, transformStyle: "preserve-3d" }}
           >
             <div
               className="absolute inset-[15%_9%_14%_8%] hidden rounded-[2.5rem] border border-brand/15 bg-brand/5 sm:block"
@@ -212,8 +232,8 @@ const HeroProductEcosystem = () => {
               aria-hidden="true"
             >
               <motion.div
-                animate={motionEnabled ? { y: [0, 5, 0] } : { y: 0 }}
-                transition={motionEnabled ? { duration: 7.5, repeat: Infinity, ease: "easeInOut" } : { duration: 0 }}
+                animate={automaticMotion ? { y: [0, 5, 0] } : { y: 0 }}
+                transition={automaticMotion ? { duration: 7.5, repeat: Infinity, ease: "easeInOut" } : { duration: 0 }}
                 className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#0d0b13] shadow-[0_38px_90px_-42px_hsl(var(--foreground)/0.75)]"
               >
                 <div className="flex h-11 items-center justify-between border-b border-white/[0.08] px-4">
@@ -330,8 +350,8 @@ const HeroProductEcosystem = () => {
               style={{ transform: "translateZ(145px)" }}
             >
               <motion.div
-                animate={motionEnabled ? { y: [0, -9, 0] } : { y: 0 }}
-                transition={motionEnabled ? { duration: 5.5, repeat: Infinity, ease: "easeInOut" } : { duration: 0 }}
+                animate={automaticMotion ? { y: [0, -9, 0] } : { y: 0 }}
+                transition={automaticMotion ? { duration: 5.5, repeat: Infinity, ease: "easeInOut" } : { duration: 0 }}
                 className="flex items-center gap-2 rounded-2xl border border-white/80 bg-card/90 p-2.5 pr-3.5 shadow-[var(--shadow-card)] backdrop-blur-xl"
               >
                 <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-soft text-brand">
@@ -353,8 +373,8 @@ const HeroProductEcosystem = () => {
               style={{ transform: "translateZ(160px)" }}
             >
               <motion.div
-                animate={motionEnabled ? { y: [0, 9, 0] } : { y: 0 }}
-                transition={motionEnabled ? { duration: 6, delay: 0.5, repeat: Infinity, ease: "easeInOut" } : { duration: 0 }}
+                animate={automaticMotion ? { y: [0, 9, 0] } : { y: 0 }}
+                transition={automaticMotion ? { duration: 6, delay: 0.5, repeat: Infinity, ease: "easeInOut" } : { duration: 0 }}
                 className="min-w-[118px] rounded-2xl border border-white/15 bg-foreground px-3.5 py-3 text-white shadow-[0_22px_50px_-25px_hsl(var(--foreground)/0.8)] sm:min-w-[145px] sm:px-4"
               >
                 <div className="flex items-center justify-between gap-3">
@@ -377,8 +397,8 @@ const HeroProductEcosystem = () => {
               style={{ transform: "translateZ(125px)" }}
             >
               <motion.div
-                animate={motionEnabled ? { y: [0, -6, 0] } : { y: 0 }}
-                transition={motionEnabled ? { duration: 6.4, delay: 0.8, repeat: Infinity, ease: "easeInOut" } : { duration: 0 }}
+                animate={automaticMotion ? { y: [0, -6, 0] } : { y: 0 }}
+                transition={automaticMotion ? { duration: 6.4, delay: 0.8, repeat: Infinity, ease: "easeInOut" } : { duration: 0 }}
                 className="flex items-center gap-2.5 rounded-2xl border border-white/80 bg-card/90 px-3.5 py-3 shadow-[var(--shadow-card)] backdrop-blur-xl"
               >
                 <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand-gradient text-white">
@@ -402,9 +422,9 @@ const HeroProductEcosystem = () => {
                   onClick={() => selectDivision(index)}
                   aria-label={`Show ${division.name}`}
                   aria-pressed={index === activeIndex}
-                  animate={motionEnabled ? { y: [0, index % 2 ? 5 : -5, 0] } : { y: 0 }}
+                  animate={automaticMotion ? { y: [0, index % 2 ? 5 : -5, 0] } : { y: 0 }}
                   transition={
-                    motionEnabled
+                    automaticMotion
                       ? { duration: 5.4 + index * 0.25, repeat: Infinity, ease: "easeInOut" }
                       : { duration: 0 }
                   }
@@ -431,7 +451,13 @@ const HeroProductEcosystem = () => {
       <button
         type="button"
         onClick={() => setUserPaused((paused) => !paused)}
-        className="absolute right-2 top-2 z-50 grid h-11 w-11 place-items-center rounded-full border border-white/80 bg-card/85 text-muted-foreground shadow-[var(--shadow-soft)] backdrop-blur-xl transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+        data-showcase-toggle
+        aria-pressed={userPaused}
+        className={`absolute right-2 top-2 z-50 grid h-11 w-11 place-items-center rounded-full border shadow-[var(--shadow-soft)] backdrop-blur-xl transition-[color,background-color,border-color,transform] hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
+          userPaused
+            ? "border-brand/40 bg-brand text-white"
+            : "border-white/80 bg-card/85 text-muted-foreground hover:text-brand"
+        }`}
         aria-label={userPaused ? "Resume automatic showcase" : "Pause automatic showcase"}
         title={userPaused ? "Resume automatic showcase" : "Pause automatic showcase"}
       >

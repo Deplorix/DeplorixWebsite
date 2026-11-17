@@ -7,6 +7,12 @@ import { divisions } from "@/data/divisions";
 import { caseStudyHref, projectsForDivision } from "@/data/projects";
 import { trackEvent } from "@/lib/analytics";
 
+const formatLocalTime = () =>
+  new Intl.DateTimeFormat(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date());
+
 type Props = {
   /** Pause the auto-rotation (used on the explore page where the user drives it). */
   autoRotate?: boolean;
@@ -33,6 +39,8 @@ const HeroPhone = ({
   showStats = true,
 }: Props) => {
   const [internalIndex, setInternalIndex] = useState(0);
+  const [localTime, setLocalTime] = useState(formatLocalTime);
+  const [ctaHovered, setCtaHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const pointerBounds = useRef<DOMRect | null>(null);
   const pointerFrame = useRef(0);
@@ -54,6 +62,32 @@ const HeroPhone = ({
     const t = setInterval(() => setInternalIndex((i) => (i + 1) % divisions.length), 4600);
     return () => clearInterval(t);
   }, [ambientMotion, autoRotate]);
+
+  useEffect(() => {
+    let minuteTimer = 0;
+
+    const updateTime = () => {
+      setLocalTime(formatLocalTime());
+      const now = new Date();
+      const delayUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds() + 25;
+      minuteTimer = window.setTimeout(updateTime, delayUntilNextMinute);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        window.clearTimeout(minuteTimer);
+        updateTime();
+      }
+    };
+
+    updateTime();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearTimeout(minuteTimer);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
 
   const active = divisions[index];
   const work = projectsForDivision(active.id);
@@ -126,7 +160,9 @@ const HeroPhone = ({
 
             {/* Status bar */}
             <div className="relative z-10 flex items-center justify-between px-6 pt-4 text-[11px] font-semibold text-foreground">
-              <span>9:41</span>
+              <time dateTime={new Date().toISOString()} aria-label={`Current local time ${localTime}`}>
+                {localTime}
+              </time>
               <span className="flex items-center gap-1 text-foreground/70" aria-label="Strong connection and battery">
                 <Signal size={10} strokeWidth={2.4} />
                 <Wifi size={10} strokeWidth={2.4} />
@@ -203,14 +239,30 @@ const HeroPhone = ({
                   asChild
                   variant="hero"
                   size="sm"
-                  className="group/phone-cta mt-3 w-full !translate-y-0 text-[12px] hover:!translate-y-0 hover:bg-primary/90 hover:shadow-[0_12px_28px_-14px_hsl(var(--foreground)/0.55)] active:scale-[0.985]"
+                  className={`group/phone-cta relative mt-3 w-full !translate-y-0 overflow-hidden border text-[12px] hover:!translate-y-0 active:scale-[0.985] ${
+                    ctaHovered
+                      ? "!border-brand/40 !bg-brand !text-brand-foreground !shadow-[0_0_0_3px_hsl(var(--brand)/0.14),0_14px_30px_-15px_hsl(var(--brand)/0.95)]"
+                      : "border-transparent"
+                  }`}
                 >
                   <Link
                     to={caseStudyHref(active.id)}
+                    data-hovered={ctaHovered}
+                    onPointerEnter={() => setCtaHovered(true)}
+                    onPointerLeave={() => setCtaHovered(false)}
                     onClick={() => trackEvent("hero_phone_cta_click", { division: active.id, source })}
                   >
-                    See case study
-                    <ArrowRight size={13} className="transition-transform duration-200 group-hover/phone-cta:translate-x-0.5" />
+                    <span
+                      aria-hidden="true"
+                      className={`absolute inset-y-0 w-1/3 skew-x-[-18deg] bg-white/20 transition-[left,opacity] duration-500 ${
+                        ctaHovered ? "left-[115%] opacity-100" : "-left-1/3 opacity-0"
+                      }`}
+                    />
+                    <span className="relative">See case study</span>
+                    <ArrowRight
+                      size={13}
+                      className={`relative transition-transform duration-200 ${ctaHovered ? "translate-x-1" : "translate-x-0"}`}
+                    />
                   </Link>
                 </Button>
               </motion.div>
