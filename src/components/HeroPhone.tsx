@@ -199,12 +199,18 @@ const HeroPhone = ({
                       ))}
                 </div>
 
-                <Button asChild variant="hero" size="sm" className="mt-3 w-full text-[12px]">
+                <Button
+                  asChild
+                  variant="hero"
+                  size="sm"
+                  className="group/phone-cta mt-3 w-full !translate-y-0 text-[12px] hover:!translate-y-0 hover:bg-primary/90 hover:shadow-[0_12px_28px_-14px_hsl(var(--foreground)/0.55)] active:scale-[0.985]"
+                >
                   <Link
                     to={caseStudyHref(active.id)}
                     onClick={() => trackEvent("hero_phone_cta_click", { division: active.id, source })}
                   >
-                    See case study <ArrowRight size={13} />
+                    See case study
+                    <ArrowRight size={13} className="transition-transform duration-200 group-hover/phone-cta:translate-x-0.5" />
                   </Link>
                 </Button>
               </motion.div>
