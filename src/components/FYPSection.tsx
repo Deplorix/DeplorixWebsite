@@ -43,21 +43,21 @@ const FYPSection = () => {
     <section id="fyp" className="section-padding bg-background">
       <div className="site-container">
         <AnimatedSection className="grid gap-8 lg:grid-cols-[.88fr_1.12fr] lg:gap-12">
-          <div className="relative overflow-hidden rounded-[2rem] bg-brand-gradient p-7 text-white shadow-[var(--shadow-brand)] sm:p-9 md:rounded-[2.5rem] lg:p-11">
+          <div className="relative overflow-hidden rounded-[1.75rem] bg-brand-gradient p-5 text-white shadow-[var(--shadow-brand)] sm:rounded-[2rem] sm:p-9 md:rounded-[2.5rem] lg:p-11">
             <div className="absolute inset-0 bg-grid opacity-20" aria-hidden />
             <div className="absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-white/20 blur-3xl" aria-hidden />
             <div className="relative">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-white/80">
                 <Sparkles size={13} /> For students
               </span>
-              <h2 className="mt-7 font-display text-4xl font-bold leading-[1.02] tracking-[-0.045em] text-white md:text-5xl">
+              <h2 className="mt-5 sm:mt-7 font-display text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.05] tracking-[-0.04em] text-white">
                 Build a project you can actually defend.
               </h2>
-              <p className="mt-5 max-w-lg text-base leading-7 text-white/70">
+              <p className="mt-4 sm:mt-5 max-w-lg text-sm sm:text-base leading-6 sm:leading-7 text-white/80">
                 Thoughtful mentorship for final-year teams—from choosing the right problem to explaining every decision during your viva.
               </p>
 
-              <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <div className="mt-8 sm:mt-10 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                 {outcomes.map((outcome) => (
                   <div key={outcome.label} className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/15"><outcome.icon size={17} /></span>
@@ -68,31 +68,71 @@ const FYPSection = () => {
             </div>
           </div>
 
-          <div className="min-w-0 rounded-[2rem] border border-border/70 bg-card p-6 shadow-[var(--shadow-soft)] sm:p-8 md:rounded-[2.5rem] md:p-10">
-            <p className="text-xs font-bold uppercase tracking-[0.13em] text-muted-foreground">Choose your level of support</p>
-            <div className="-mx-1 mt-6 flex w-full max-w-full snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:block lg:overflow-visible lg:p-0">
-              {supportLevels.map((level, index) => (
-                <div key={level.name} className="group grid w-[88%] shrink-0 snap-start gap-5 rounded-2xl border border-border/70 bg-secondary/35 p-5 sm:w-[72%] lg:w-auto lg:min-w-0 lg:grid-cols-[1fr_auto] lg:items-center lg:rounded-none lg:border-x-0 lg:border-b-0 lg:border-t lg:bg-transparent lg:px-0 lg:py-7 lg:first:border-t-0 lg:first:pt-0 lg:last:pb-0">
-                  <div>
-                    <div className="flex items-center gap-3">
-                      <span className="font-display text-xs font-bold text-brand">0{index + 1}</span>
-                      <h3 className="font-display text-2xl font-bold tracking-tight text-foreground">{level.name}</h3>
+          <div className="min-w-0 rounded-[1.75rem] border border-border/70 bg-card p-4 shadow-[var(--shadow-soft)] sm:rounded-[2rem] sm:p-7 md:rounded-[2.5rem] md:p-10">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-bold uppercase tracking-[0.13em] text-muted-foreground">
+                Choose your level of support
+              </p>
+              <span className="text-[10px] font-semibold text-brand sm:hidden">3 options</span>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-4 sm:gap-5 lg:mt-6 lg:block lg:gap-0 lg:p-0">
+              {supportLevels.map((level, index) => {
+                const isFeatured = index === 1;
+                return (
+                  <div
+                    key={level.name}
+                    className={`group grid w-full gap-4 rounded-2xl border p-4 sm:p-6 lg:w-auto lg:min-w-0 lg:grid-cols-[1fr_auto] lg:items-center lg:rounded-none lg:border-x-0 lg:border-b-0 lg:border-t lg:bg-transparent lg:px-0 lg:py-7 lg:first:border-t-0 lg:first:pt-0 lg:last:pb-0 ${
+                      isFeatured
+                        ? "border-brand/40 bg-brand-soft/25 ring-1 ring-brand/20 lg:ring-0 lg:bg-transparent lg:border-border/70"
+                        : "border-border/70 bg-secondary/35"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <span className="font-display text-xs font-bold text-brand">0{index + 1}</span>
+                        <h3 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                          {level.name}
+                        </h3>
+                        {isFeatured && (
+                          <span className="rounded-full bg-brand px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-foreground shadow-xs">
+                            Recommended
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="mt-1.5 max-w-xl text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                        {level.ideal}
+                      </p>
+
+                      <div className="mt-2.5">
+                        <span className="inline-flex rounded-full bg-brand-soft px-3 py-1 text-[11px] sm:text-xs font-bold text-accent-foreground">
+                          {level.timeline}
+                        </span>
+                      </div>
+
+                      <ul className="mt-3.5 grid gap-2 sm:grid-cols-2">
+                        {level.features.map((feature) => (
+                          <li key={feature} className="flex items-start gap-2 text-xs leading-5 text-muted-foreground">
+                            <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-brand" />
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">{level.ideal}</p>
-                    <p className="mt-3 inline-flex rounded-full bg-brand-soft px-3 py-1 text-xs font-bold text-accent-foreground">{level.timeline}</p>
-                    <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                      {level.features.map((feature) => (
-                        <li key={feature} className="flex items-start gap-2 text-xs leading-5 text-muted-foreground">
-                          <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-brand" /> {feature}
-                        </li>
-                      ))}
-                    </ul>
+
+                    <div className="pt-2 lg:pt-0">
+                      <Button
+                        variant={isFeatured ? "brand" : "hero-outline"}
+                        className="min-h-11 w-full font-semibold sm:w-auto"
+                        onClick={() => startPlan(level.name)}
+                      >
+                        Discuss this option <ArrowRight size={15} />
+                      </Button>
+                    </div>
                   </div>
-                  <Button variant={index === 1 ? "brand" : "hero-outline"} className="min-h-11 w-full md:w-auto" onClick={() => startPlan(level.name)}>
-                    Discuss this option <ArrowRight size={15} />
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </AnimatedSection>
