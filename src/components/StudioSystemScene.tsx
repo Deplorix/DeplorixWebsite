@@ -54,7 +54,9 @@ const StudioSystemScene = () => {
   const isInView = useInView(sceneRef, { amount: 0.15 });
   const titleId = useId();
   const descriptionId = useId();
-  const [hasFinePointer, setHasFinePointer] = useState(false);
+  const [hasFinePointer, setHasFinePointer] = useState(
+    () => typeof window !== "undefined" && window.matchMedia(finePointerQuery).matches,
+  );
   const [sceneHovered, setSceneHovered] = useState(false);
 
   const pointerX = useMotionValue(0);
@@ -62,13 +64,25 @@ const StudioSystemScene = () => {
   const pointerBounds = useRef<DOMRect | null>(null);
   const pointerFrame = useRef(0);
   const pendingPointer = useRef({ x: 0, y: 0 });
-  const mappedRotateY = useTransform(pointerX, [-0.5, 0.5], [-7, 7]);
-  const mappedRotateX = useTransform(pointerY, [-0.5, 0.5], [5.25, -5.25]);
-  const mappedShiftX = useTransform(pointerX, [-0.5, 0.5], [-4, 4]);
-  const rotateX = useSpring(mappedRotateX, { stiffness: 180, damping: 25, mass: 0.65 });
-  const rotateY = useSpring(mappedRotateY, { stiffness: 180, damping: 25, mass: 0.65 });
-  const sceneX = useSpring(mappedShiftX, { stiffness: 190, damping: 26, mass: 0.6 });
-  const interactiveMotion = hasFinePointer && !reduceMotion;
+  const mappedRotateY = useTransform(
+    pointerX,
+    [-0.5, 0.5],
+    reduceMotion ? [-5, 5] : [-9, 9],
+  );
+  const mappedRotateX = useTransform(
+    pointerY,
+    [-0.5, 0.5],
+    reduceMotion ? [3.5, -3.5] : [6.5, -6.5],
+  );
+  const mappedShiftX = useTransform(
+    pointerX,
+    [-0.5, 0.5],
+    reduceMotion ? [-3, 3] : [-6, 6],
+  );
+  const rotateX = useSpring(mappedRotateX, { stiffness: 185, damping: 25, mass: 0.65 });
+  const rotateY = useSpring(mappedRotateY, { stiffness: 185, damping: 25, mass: 0.65 });
+  const sceneX = useSpring(mappedShiftX, { stiffness: 195, damping: 26, mass: 0.6 });
+  const interactiveMotion = sceneHovered;
   const ambientMotion = isInView && !reduceMotion;
 
   useEffect(() => {
@@ -81,7 +95,8 @@ const StudioSystemScene = () => {
   }, []);
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLElement>) => {
-    if (!interactiveMotion) return;
+    if (event.pointerType === "touch") return;
+    if (!sceneHovered) setSceneHovered(true);
 
     pointerBounds.current ??= event.currentTarget.getBoundingClientRect();
     pendingPointer.current = { x: event.clientX, y: event.clientY };
@@ -106,12 +121,26 @@ const StudioSystemScene = () => {
   }, [pointerX, pointerY]);
 
   useEffect(() => {
-    if (!interactiveMotion) resetTilt();
-
     return () => {
       if (pointerFrame.current) window.cancelAnimationFrame(pointerFrame.current);
     };
-  }, [interactiveMotion, resetTilt]);
+  }, []);
+
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+
+    const syncHoveredScene = () => {
+      if (scene.matches(":hover")) setSceneHovered(true);
+    };
+    const initialFrame = window.requestAnimationFrame(syncHoveredScene);
+    const followUpFrame = window.setTimeout(syncHoveredScene, 120);
+
+    return () => {
+      window.cancelAnimationFrame(initialFrame);
+      window.clearTimeout(followUpFrame);
+    };
+  }, []);
 
   return (
     <motion.figure
@@ -123,12 +152,12 @@ const StudioSystemScene = () => {
       viewport={{ once: true, amount: 0.35 }}
       transition={{ duration: reduceMotion ? 0 : 0.8, ease: entranceEase }}
       onPointerMove={handlePointerMove}
-      onPointerEnter={() => {
-        if (interactiveMotion) setSceneHovered(true);
+      onPointerEnter={(event) => {
+        if (event.pointerType !== "touch") setSceneHovered(true);
       }}
       onPointerLeave={resetTilt}
       onPointerCancel={resetTilt}
-      className="relative mx-auto h-[430px] w-full max-w-[640px] sm:h-[500px] lg:mx-0 lg:h-[560px]"
+      className="group/studio-scene relative mx-auto h-[430px] w-full max-w-[640px] sm:h-[500px] lg:mx-0 lg:h-[560px]"
       style={{ perspective: "1500px" }}
     >
       <figcaption className="sr-only">
@@ -145,33 +174,39 @@ const StudioSystemScene = () => {
         <div className="absolute inset-x-[9%] bottom-[5%] h-[12%] rounded-[50%] bg-foreground/20 blur-2xl" />
       </div>
 
-      <motion.div
-        className="absolute inset-x-1 bottom-5 top-5 sm:inset-x-5 sm:bottom-7 sm:top-7"
-        animate={
-          ambientMotion
-            ? hasFinePointer
-              ? { y: [0, -4, 0], rotateZ: [-0.2, 0.2, -0.2] }
-              : {
-                  y: [0, -5, 0],
-                  rotateX: [-1.3, 0.9, -1.3],
-                  rotateY: [-2, 2, -2],
-                  rotateZ: [-0.25, 0.25, -0.25],
-                }
-            : { y: 0, rotateX: 0, rotateY: 0, rotateZ: 0 }
-        }
-        transition={
-          ambientMotion
-            ? { duration: hasFinePointer ? 8.5 : 10, repeat: Infinity, ease: "easeInOut" }
-            : { duration: 0.25 }
-        }
+      <div
+        className="absolute inset-x-1 bottom-5 top-5 transition-transform duration-300 ease-out group-hover/studio-scene:-translate-y-1.5 group-hover/studio-scene:scale-[1.018] sm:inset-x-5 sm:bottom-7 sm:top-7"
         style={{ transformStyle: "preserve-3d" }}
         aria-hidden="true"
       >
         <motion.div
+          className="absolute inset-0"
+          animate={
+            ambientMotion
+              ? hasFinePointer
+                ? { y: [0, -4, 0], rotateZ: [-0.2, 0.2, -0.2] }
+                : {
+                    y: [0, -5, 0],
+                    rotateX: [-1.3, 0.9, -1.3],
+                    rotateY: [-2, 2, -2],
+                    rotateZ: [-0.25, 0.25, -0.25],
+                  }
+              : { y: 0, rotateX: 0, rotateY: 0, rotateZ: 0 }
+          }
+          transition={
+            ambientMotion
+              ? { duration: hasFinePointer ? 8.5 : 10, repeat: Infinity, ease: "easeInOut" }
+              : { duration: 0.25 }
+          }
+          style={{ transformStyle: "preserve-3d" }}
+        >
+        <motion.div
           className="absolute inset-0 will-change-transform"
           animate={
-            sceneHovered && interactiveMotion
-              ? { scale: 1.024, y: -6, z: 20 }
+            interactiveMotion
+              ? reduceMotion
+                ? { scale: 1.02, y: -5, z: 14 }
+                : { scale: 1.035, y: -10, z: 32 }
               : { scale: 1, y: 0, z: 0 }
           }
           transition={
@@ -180,13 +215,19 @@ const StudioSystemScene = () => {
               : { type: "spring", stiffness: 220, damping: 24, mass: 0.65 }
           }
           style={{
-            rotateX,
-            rotateY,
-            x: sceneX,
+            rotateX: reduceMotion ? mappedRotateX : rotateX,
+            rotateY: reduceMotion ? mappedRotateY : rotateY,
+            x: reduceMotion ? mappedShiftX : sceneX,
             transformOrigin: "50% 50%",
             transformStyle: "preserve-3d",
           }}
         >
+        <motion.div
+          className="pointer-events-none absolute inset-[4%_1%_5%_1%] rounded-[2.5rem] bg-[radial-gradient(circle_at_75%_20%,hsl(var(--brand)/0.24),transparent_38%)]"
+          animate={{ opacity: interactiveMotion ? (reduceMotion ? 0.7 : 1) : 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.28, ease: entranceEase }}
+          style={{ transform: "translateZ(54px)" }}
+        />
         <div
           className="absolute inset-[12%_4%_8%_9%] rounded-[2rem] border border-brand/20 bg-brand/10 sm:rounded-[2.5rem]"
           style={{
@@ -414,8 +455,9 @@ const StudioSystemScene = () => {
           className="absolute left-[2%] top-[19%] h-4 w-4 rounded-full border-[4px] border-[#0d0b13] bg-peach shadow-[0_0_26px_hsl(var(--peach)/0.9)] sm:h-5 sm:w-5 sm:border-[5px]"
           style={{ transform: "translateZ(72px)" }}
         />
+          </motion.div>
         </motion.div>
-      </motion.div>
+      </div>
     </motion.figure>
   );
 };

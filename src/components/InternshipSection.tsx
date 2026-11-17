@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import internshipImg from "@/assets/internship.jpg";
 
-const WHATSAPP_NUMBER = "916360327386";
-const DISPLAY_PHONE = "+91 63603 27386";
+const WHATSAPP_NUMBER = "919945831090";
+const DISPLAY_PHONE = "+91 99458 31090";
 
 const journey = [
   {
@@ -327,7 +327,7 @@ const InternshipSection = () => {
                     required
                     autoComplete="tel"
                     type="tel"
-                    placeholder="+91 63603 27386"
+                    placeholder="+91 99458 31090"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     disabled={submitting}
