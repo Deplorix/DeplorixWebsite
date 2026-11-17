@@ -46,11 +46,33 @@ export function prepareInquiry(payload) {
 export function publicInquiryError(error) {
   const statusCode = Number.isInteger(error?.statusCode) ? error.statusCode : 500;
   const isPublic = statusCode >= 400 && statusCode < 500;
+
+  let message = "We could not submit your inquiry just now. Please try again.";
+
+  if (isPublic && error?.message) {
+    message = error.message;
+  } else if (error?.message) {
+    const msg = error.message.toLowerCase();
+    if (msg.includes("mongodb_uri")) {
+      message = "Database configuration missing: MONGODB_URI is not set in environment variables.";
+    } else if (
+      msg.includes("mongoserverselectionerror") ||
+      msg.includes("whitelist") ||
+      msg.includes("ssl alert") ||
+      msg.includes("timed out") ||
+      msg.includes("etimedout") ||
+      msg.includes("enotfound")
+    ) {
+      message = "Database connection failed. Please ensure your IP address or 0.0.0.0/0 is whitelisted in MongoDB Atlas Network Access.";
+    }
+  }
+
   return {
     statusCode,
     body: {
-      error: isPublic ? error.message : "We could not submit your inquiry just now. Please try again.",
+      error: message,
       code: error?.code || "INTERNAL_ERROR",
+      details: process.env.NODE_ENV !== "production" ? error?.message : undefined,
     },
   };
 }
