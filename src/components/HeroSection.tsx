@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LogoStrip from "./LogoStrip";
-import Hero3DScene from "./Hero3DScene";
+import HeroPhone from "./HeroPhone";
 import BrandXMark from "./BrandXMark";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -92,7 +92,17 @@ const HeroSection = () => {
             </motion.div>
           </div>
 
-          <Hero3DScene />
+          <motion.div
+            initial={{ opacity: 0, x: 34, scale: 0.96 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ duration: 0.9, delay: 0.18, ease }}
+            className="relative flex min-h-[540px] items-center justify-center py-4 sm:min-h-[610px] lg:min-h-0 lg:justify-end lg:py-0"
+          >
+            <div className="absolute left-1/2 top-1/2 h-[68%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-[72px]" aria-hidden />
+            <div className="absolute left-1/2 top-1/2 h-[80%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-brand/15" aria-hidden />
+            <div className="absolute left-1/2 top-1/2 h-[64%] w-[64%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-brand/20" aria-hidden />
+            <HeroPhone source="hero" />
+          </motion.div>
         </div>
 
         <motion.div

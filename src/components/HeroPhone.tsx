@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useInView, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { divisions } from "@/data/divisions";
@@ -27,6 +27,8 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
   const pointerFrame = useRef(0);
   const pendingPointer = useRef({ x: 0, y: 0 });
   const reduceMotion = useReducedMotion();
+  const isInView = useInView(containerRef, { amount: 0.15 });
+  const ambientMotion = isInView && !reduceMotion;
 
   const controlledIndex = activeId ? divisions.findIndex((d) => d.id === activeId) : -1;
   const index = controlledIndex >= 0 ? controlledIndex : internalIndex;
@@ -37,10 +39,10 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
   const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [-10, 12]), { stiffness: 120, damping: 18 });
 
   useEffect(() => {
-    if (!autoRotate || reduceMotion) return;
+    if (!autoRotate || !ambientMotion) return;
     const t = setInterval(() => setInternalIndex((i) => (i + 1) % divisions.length), 4600);
     return () => clearInterval(t);
-  }, [autoRotate, reduceMotion]);
+  }, [ambientMotion, autoRotate]);
 
   const active = divisions[index];
   const work = projectsForDivision(active.id);
@@ -53,7 +55,7 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
 
   const handleMove = (e: React.MouseEvent) => {
     const el = containerRef.current;
-    if (!el || reduceMotion) return;
+    if (!el || !ambientMotion) return;
     pointerBounds.current ??= el.getBoundingClientRect();
     pendingPointer.current = { x: e.clientX, y: e.clientY };
     if (pointerFrame.current) return;
@@ -87,11 +89,11 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
 
       <motion.div
         initial={reduceMotion ? false : { opacity: 0, y: 60, rotateY: 24 }}
-        animate={{ opacity: 1, y: reduceMotion ? 0 : [0, -14, 0], rotateY: 0 }}
+        animate={{ opacity: 1, y: ambientMotion ? [0, -14, 0] : 0, rotateY: 0 }}
         transition={{
           opacity: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
           rotateY: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
-          y: { duration: reduceMotion ? 0 : 6, repeat: reduceMotion ? 0 : Infinity, ease: "easeInOut" },
+          y: { duration: ambientMotion ? 6 : 0, repeat: ambientMotion ? Infinity : 0, ease: "easeInOut" },
         }}
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
         className="relative"
@@ -214,8 +216,8 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
 
         {/* Floating stat chips */}
         <motion.div
-          animate={{ y: reduceMotion ? 0 : [0, -10, 0] }}
-          transition={{ duration: reduceMotion ? 0 : 5, repeat: reduceMotion ? 0 : Infinity, ease: "easeInOut", delay: reduceMotion ? 0 : 0.6 }}
+          animate={{ y: ambientMotion ? [0, -10, 0] : 0 }}
+          transition={{ duration: ambientMotion ? 5 : 0, repeat: ambientMotion ? Infinity : 0, ease: "easeInOut", delay: ambientMotion ? 0.6 : 0 }}
           style={{ transform: "translateZ(60px)" }}
           className="absolute -left-10 top-24 hidden lg:block glass-card px-4 py-3"
         >
@@ -223,8 +225,8 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
           <p className="text-[11px] text-muted-foreground">Divisions</p>
         </motion.div>
         <motion.div
-          animate={{ y: reduceMotion ? 0 : [0, 12, 0] }}
-          transition={{ duration: reduceMotion ? 0 : 5.5, repeat: reduceMotion ? 0 : Infinity, ease: "easeInOut", delay: reduceMotion ? 0 : 1.2 }}
+          animate={{ y: ambientMotion ? [0, 12, 0] : 0 }}
+          transition={{ duration: ambientMotion ? 5.5 : 0, repeat: ambientMotion ? Infinity : 0, ease: "easeInOut", delay: ambientMotion ? 1.2 : 0 }}
           style={{ transform: "translateZ(60px)" }}
           className="absolute -right-10 bottom-28 hidden lg:block glass-card px-4 py-3"
         >
