@@ -25,7 +25,7 @@ export type InternshipApplicationPayload = {
   } | null;
 };
 
-const REQUEST_TIMEOUT_MS = 15_000;
+const REQUEST_TIMEOUT_MS = 30_000;
 
 async function requestJson(endpoint: string, init?: RequestInit) {
   const controller = new AbortController();
@@ -36,9 +36,9 @@ async function requestJson(endpoint: string, init?: RequestInit) {
     response = await fetch(endpoint, { ...init, signal: controller.signal });
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
-      throw new Error("The request took too long. Please check your connection and try again.");
+      throw new Error("The request timed out. Please check your internet connection and try again.");
     }
-    throw new Error("We couldn't reach the server. Please check your connection and try again.");
+    throw new Error("We couldn't connect to the server. Please check your network connection and try again.");
   } finally {
     window.clearTimeout(timeout);
   }
@@ -46,6 +46,11 @@ async function requestJson(endpoint: string, init?: RequestInit) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    if (response.status === 403 && typeof window !== "undefined" && window.location.port === "8080") {
+      throw new Error(
+        "Port 8080 is blocked by Jenkins/another process on this computer. Please open http://localhost:8081 in your browser instead."
+      );
+    }
     const errorMsg = data.error || data.message || `Request failed with status ${response.status}`;
     const fullMsg = data.details && data.details !== data.error ? `${errorMsg} (${data.details})` : errorMsg;
     throw new Error(fullMsg);

@@ -7,10 +7,16 @@ import { apiMiddlewarePlugin } from "./server/vite-plugin-api.js";
 export default defineConfig(() => ({
   server: {
     host: "::",
-    port: 8080,
+    port: 8081,
+    strictPort: false,
     hmr: {
       overlay: false,
     },
+  },
+  preview: {
+    host: "::",
+    port: 8081,
+    strictPort: false,
   },
   plugins: [
     react(),

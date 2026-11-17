@@ -65,6 +65,7 @@ const ServiceInquiryForm = () => {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof FormState, boolean>>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [statusAlert, setStatusAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   useEffect(() => {
     const timers: number[] = [];
@@ -86,7 +87,9 @@ const ServiceInquiryForm = () => {
         setErrors((prev) => ({ ...prev, message: undefined }));
       }
 
-      document.getElementById("service-inquiry")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      const inquiryForm = document.getElementById("service-inquiry");
+      inquiryForm?.scrollIntoView({ behavior: "smooth", block: "center" });
+      window.setTimeout(() => inquiryForm?.focus({ preventScroll: true }), 450);
     };
     window.addEventListener(INQUIRY_EVENT, handler);
 
@@ -119,6 +122,7 @@ const ServiceInquiryForm = () => {
 
   const update = (field: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    if (statusAlert?.type === "error") setStatusAlert(null);
     if (touched[field]) validateField(field, value);
   };
 
@@ -129,6 +133,7 @@ const ServiceInquiryForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setStatusAlert(null);
     const result = inquirySchema.safeParse(form);
     if (!result.success) {
       const next: FieldErrors = {};
@@ -155,12 +160,20 @@ const ServiceInquiryForm = () => {
         message: data.message,
       });
 
+      setStatusAlert({
+        type: "success",
+        message: "Inquiry submitted successfully! Our team will contact you within one business day.",
+      });
       toast.success("Inquiry submitted successfully! Our team will contact you shortly.");
       setForm({ name: "", email: "", phone: "", message: "" });
       setTouched({});
       setErrors({});
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to submit inquiry. Please try again.";
+      setStatusAlert({
+        type: "error",
+        message,
+      });
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -183,9 +196,14 @@ const ServiceInquiryForm = () => {
 
   return (
     <AnimatedSection>
-      <div id="service-inquiry" className="mx-auto mt-16 max-w-6xl scroll-mt-28 overflow-hidden rounded-[2rem] border border-border/60 bg-background shadow-[var(--shadow-card)] md:rounded-[2.5rem]">
+      <div
+        id="service-inquiry"
+        tabIndex={-1}
+        aria-label="Project inquiry form"
+        className="mx-auto mt-16 max-w-6xl scroll-mt-28 overflow-hidden rounded-[2rem] border border-border/60 bg-background shadow-[var(--shadow-card)] outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 md:rounded-[2.5rem]"
+      >
         <div className="grid lg:grid-cols-[.82fr_1.18fr]">
-          <aside className="relative overflow-hidden bg-foreground p-7 text-white sm:p-9 lg:p-10">
+          <aside className="relative overflow-hidden bg-foreground p-5 text-white sm:p-8 lg:p-10">
             <div className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-brand/20 blur-3xl" aria-hidden />
             <div className="relative">
               <p className="text-xs font-bold uppercase tracking-[0.13em] text-white/60">Start the conversation</p>
@@ -218,7 +236,7 @@ const ServiceInquiryForm = () => {
             </div>
           </aside>
 
-          <div className="p-6 sm:p-9 lg:p-10">
+          <div className="p-5 sm:p-8 lg:p-10">
             <p className="text-xs font-bold uppercase tracking-[0.13em] text-muted-foreground">What can we help with?</p>
             <div className="-mx-1 mt-4 flex gap-2 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {divisions.map((division) => {
@@ -279,9 +297,22 @@ const ServiceInquiryForm = () => {
                 {errorText("message")}
               </div>
 
+              {statusAlert && (
+                <div
+                  role="status"
+                  className={`rounded-2xl p-4 text-xs sm:text-sm font-medium leading-relaxed ${
+                    statusAlert.type === "success"
+                      ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300"
+                      : "border border-destructive/30 bg-destructive/10 text-destructive"
+                  }`}
+                >
+                  {statusAlert.message}
+                </div>
+              )}
+
               <div className="flex flex-col gap-3 border-t border-border/70 pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <p className="max-w-xs text-xs leading-5 text-muted-foreground">We usually respond within one business day with concrete next steps.</p>
-                <Button type="submit" variant="brand" size="lg" disabled={submitting} className="h-12 rounded-full px-6">
+                <Button type="submit" variant="brand" size="lg" disabled={submitting} className="h-12 w-full rounded-full px-6 touch-manipulation active:scale-[0.985] sm:w-auto">
                   {submitting ? (
                     <><Loader2 size={16} className="animate-spin" /> Submitting…</>
                   ) : (

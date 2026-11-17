@@ -37,27 +37,25 @@ function sendJson(res, statusCode, data) {
 }
 
 export function apiMiddlewarePlugin() {
-  return {
-    name: "vite-plugin-mongodb-api",
-    configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
-        const url = req.url ? req.url.split("?")[0] : "";
+  const setupMiddlewares = (server) => {
+    server.middlewares.use(async (req, res, next) => {
+      const url = req.url ? req.url.split("?")[0] : "";
 
-        if (!url.startsWith("/api/")) {
-          return next();
-        }
+      if (!url.startsWith("/api/")) {
+        return next();
+      }
 
-        // Enable CORS
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+      // Enable CORS
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-        if (req.method === "OPTIONS") {
-          res.statusCode = 204;
-          return res.end();
-        }
+      if (req.method === "OPTIONS") {
+        res.statusCode = 204;
+        return res.end();
+      }
 
-        try {
+      try {
           if (url === "/api/health" && req.method === "GET") {
             const db = await getDb();
             await db.command({ ping: 1 });
@@ -109,6 +107,11 @@ export function apiMiddlewarePlugin() {
           sendJson(res, 500, { error: "Internal server error" });
         }
       });
-    },
+    };
+
+  return {
+    name: "vite-plugin-mongodb-api",
+    configureServer: setupMiddlewares,
+    configurePreviewServer: setupMiddlewares,
   };
 }

@@ -55,6 +55,8 @@ export function publicInquiryError(error) {
     const msg = error.message.toLowerCase();
     if (msg.includes("mongodb_uri")) {
       message = "Database configuration missing: MONGODB_URI is not set in environment variables.";
+    } else if (msg.includes("bad auth") || msg.includes("authentication failed")) {
+      message = "MongoDB authentication failed. Please check the database credentials in .env.";
     } else if (
       msg.includes("mongoserverselectionerror") ||
       msg.includes("whitelist") ||
@@ -63,7 +65,9 @@ export function publicInquiryError(error) {
       msg.includes("etimedout") ||
       msg.includes("enotfound")
     ) {
-      message = "Database connection failed. Please ensure your IP address or 0.0.0.0/0 is whitelisted in MongoDB Atlas Network Access.";
+      message = "Database connection timed out. Please check your network or ensure 0.0.0.0/0 is whitelisted in MongoDB Atlas Network Access.";
+    } else {
+      message = `Database error: ${error.message}`;
     }
   }
 
@@ -72,7 +76,7 @@ export function publicInquiryError(error) {
     body: {
       error: message,
       code: error?.code || "INTERNAL_ERROR",
-      details: process.env.NODE_ENV !== "production" ? error?.message : undefined,
+      details: error?.message,
     },
   };
 }
