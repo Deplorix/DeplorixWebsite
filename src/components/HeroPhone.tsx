@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion, useInView, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, BatteryMedium, Signal, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { divisions } from "@/data/divisions";
 import { caseStudyHref, projectsForDivision } from "@/data/projects";
@@ -14,13 +14,24 @@ type Props = {
   activeId?: string;
   onActiveChange?: (id: string) => void;
   source?: string;
+  interactiveTilt?: boolean;
+  ambientFloat?: boolean;
+  showStats?: boolean;
 };
 
 /**
  * Floating 3D phone mockup. Cycles through the service divisions, showing what
  * each division does plus real work we've shipped, each linking to its case study.
  */
-const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero" }: Props) => {
+const HeroPhone = ({
+  autoRotate = true,
+  activeId,
+  onActiveChange,
+  source = "hero",
+  interactiveTilt = true,
+  ambientFloat = true,
+  showStats = true,
+}: Props) => {
   const [internalIndex, setInternalIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const pointerBounds = useRef<DOMRect | null>(null);
@@ -28,7 +39,7 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
   const pendingPointer = useRef({ x: 0, y: 0 });
   const reduceMotion = useReducedMotion();
   const isInView = useInView(containerRef, { amount: 0.15 });
-  const ambientMotion = isInView && !reduceMotion;
+  const ambientMotion = ambientFloat && isInView && !reduceMotion;
 
   const controlledIndex = activeId ? divisions.findIndex((d) => d.id === activeId) : -1;
   const index = controlledIndex >= 0 ? controlledIndex : internalIndex;
@@ -55,7 +66,7 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
 
   const handleMove = (e: React.MouseEvent) => {
     const el = containerRef.current;
-    if (!el || !ambientMotion) return;
+    if (!el || !interactiveTilt || reduceMotion) return;
     pointerBounds.current ??= el.getBoundingClientRect();
     pendingPointer.current = { x: e.clientX, y: e.clientY };
     if (pointerFrame.current) return;
@@ -79,8 +90,8 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
   return (
     <div
       ref={containerRef}
-      onMouseMove={handleMove}
-      onMouseLeave={reset}
+      onMouseMove={interactiveTilt ? handleMove : undefined}
+      onMouseLeave={interactiveTilt ? reset : undefined}
       className="relative flex items-center justify-center"
       style={{ perspective: 1200 }}
     >
@@ -116,7 +127,11 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
             {/* Status bar */}
             <div className="relative z-10 flex items-center justify-between px-6 pt-4 text-[11px] font-semibold text-foreground">
               <span>9:41</span>
-              <span className="tracking-widest">DEPLORIX</span>
+              <span className="flex items-center gap-1 text-foreground/70" aria-label="Strong connection and battery">
+                <Signal size={10} strokeWidth={2.4} />
+                <Wifi size={10} strokeWidth={2.4} />
+                <BatteryMedium size={12} strokeWidth={2.4} />
+              </span>
             </div>
 
             <AnimatePresence mode="wait">
@@ -196,7 +211,11 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
             </AnimatePresence>
 
             {/* Tab bar */}
-            <div className="absolute bottom-0 inset-x-0 border-t border-border/60 bg-background/90 backdrop-blur px-4 py-3 flex justify-center gap-1.5">
+            <div
+              className="absolute bottom-0 inset-x-0 flex justify-center border-t border-border/60 bg-background/90 backdrop-blur"
+              role="group"
+              aria-label="Choose a DeploriX division"
+            >
               {divisions.map((d, i) => (
                 <Button
                   key={d.id}
@@ -204,9 +223,10 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
                   variant="ghost"
                   size="sm"
                   aria-label={d.name}
+                  aria-pressed={i === index}
                   onClick={() => select(i)}
-                  className={`h-6 min-w-6 rounded-full p-0 transition-all duration-300 after:h-1.5 after:rounded-full ${
-                    i === index ? "w-8 after:w-6 after:bg-foreground" : "w-6 after:w-1.5 after:bg-border"
+                  className={`h-11 min-h-11 w-11 min-w-11 rounded-full p-0 transition-all duration-300 after:h-1.5 after:rounded-full ${
+                    i === index ? "after:w-6 after:bg-foreground" : "after:w-1.5 after:bg-border"
                   }`}
                 />
               ))}
@@ -215,24 +235,28 @@ const HeroPhone = ({ autoRotate = true, activeId, onActiveChange, source = "hero
         </div>
 
         {/* Floating stat chips */}
-        <motion.div
-          animate={{ y: ambientMotion ? [0, -10, 0] : 0 }}
-          transition={{ duration: ambientMotion ? 5 : 0, repeat: ambientMotion ? Infinity : 0, ease: "easeInOut", delay: ambientMotion ? 0.6 : 0 }}
-          style={{ transform: "translateZ(60px)" }}
-          className="absolute -left-10 top-24 hidden lg:block glass-card px-4 py-3"
-        >
-          <p className="text-xl font-bold tracking-tight text-foreground">5</p>
-          <p className="text-[11px] text-muted-foreground">Divisions</p>
-        </motion.div>
-        <motion.div
-          animate={{ y: ambientMotion ? [0, 12, 0] : 0 }}
-          transition={{ duration: ambientMotion ? 5.5 : 0, repeat: ambientMotion ? Infinity : 0, ease: "easeInOut", delay: ambientMotion ? 1.2 : 0 }}
-          style={{ transform: "translateZ(60px)" }}
-          className="absolute -right-10 bottom-28 hidden lg:block glass-card px-4 py-3"
-        >
-          <p className="text-xl font-bold tracking-tight text-foreground">50+</p>
-          <p className="text-[11px] text-muted-foreground">Projects shipped</p>
-        </motion.div>
+        {showStats && (
+          <>
+            <motion.div
+              animate={{ y: ambientMotion ? [0, -10, 0] : 0 }}
+              transition={{ duration: ambientMotion ? 5 : 0, repeat: ambientMotion ? Infinity : 0, ease: "easeInOut", delay: ambientMotion ? 0.6 : 0 }}
+              style={{ transform: "translateZ(60px)" }}
+              className="absolute -left-10 top-24 hidden lg:block glass-card px-4 py-3"
+            >
+              <p className="text-xl font-bold tracking-tight text-foreground">5</p>
+              <p className="text-[11px] text-muted-foreground">Divisions</p>
+            </motion.div>
+            <motion.div
+              animate={{ y: ambientMotion ? [0, 12, 0] : 0 }}
+              transition={{ duration: ambientMotion ? 5.5 : 0, repeat: ambientMotion ? Infinity : 0, ease: "easeInOut", delay: ambientMotion ? 1.2 : 0 }}
+              style={{ transform: "translateZ(60px)" }}
+              className="absolute -right-10 bottom-28 hidden lg:block glass-card px-4 py-3"
+            >
+              <p className="text-xl font-bold tracking-tight text-foreground">40+</p>
+              <p className="text-[11px] text-muted-foreground">Products shipped</p>
+            </motion.div>
+          </>
+        )}
       </motion.div>
 
     </div>
