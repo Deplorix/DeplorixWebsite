@@ -21,6 +21,7 @@ const columns = [
       { label: "Selected work", href: "/#pricing" },
       { label: "Process", href: "/#process" },
       { label: "Internships", href: "/#resources" },
+      { label: "DeploriX Learn", href: "/learn" },
       { label: "Explore", href: "/explore" },
     ],
   },

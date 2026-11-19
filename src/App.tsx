@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import Index from "./pages/Index";
 
 const Explore = lazy(() => import("./pages/Explore"));
+const Learn = lazy(() => import("./pages/Learn"));
 const DivisionWork = lazy(() => import("./pages/DivisionWork"));
 const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 const AdminAuth = lazy(() => import("./pages/AdminAuth"));
@@ -52,6 +53,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/explore" element={<Explore />} />
+            <Route path="/learn" element={<Learn />} />
             <Route path="/work/:divisionId" element={<DivisionWork />} />
             <Route path="/terms" element={<TermsAndConditions />} />
             <Route path="/admin/login" element={<AdminAuth />} />
