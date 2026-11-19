@@ -67,8 +67,8 @@ const HeroProductEcosystem = () => {
   });
 
   const motionEnabled = isInView && pageVisible && !reduceMotion;
-  const automaticMotion = motionEnabled && !userPaused;
-  const autoCycle = automaticMotion && !hasFocus && !manualPause;
+  const automaticMotion = motionEnabled && hasFinePointer && !userPaused;
+  const autoCycle = motionEnabled && !userPaused && !hasFocus && !manualPause;
   const active = divisions[activeIndex];
   const featuredProject = projectsForDivision(active.id)[0];
   const progress = deliveryProgress[activeIndex];

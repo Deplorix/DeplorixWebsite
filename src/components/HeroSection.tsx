@@ -3,11 +3,11 @@ import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LogoStrip from "./LogoStrip";
-import HeroProductEcosystem from "./HeroProductEcosystem";
 import BrandXMark from "./BrandXMark";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const StartProjectDialog = lazy(() => import("./StartProjectDialog"));
+const HeroProductEcosystem = lazy(() => import("./HeroProductEcosystem"));
 
 const HeroSection = () => {
   const [projectOpen, setProjectOpen] = useState(false);
@@ -98,7 +98,16 @@ const HeroSection = () => {
             transition={{ duration: 0.9, delay: 0.18, ease }}
             className="relative flex min-h-[570px] items-center justify-center py-4 sm:min-h-[630px] lg:min-h-0 lg:justify-end lg:py-0"
           >
-            <HeroProductEcosystem />
+            <Suspense
+              fallback={
+                <div
+                  className="h-[570px] w-full max-w-[660px] animate-pulse rounded-[2.75rem] border border-brand/10 bg-brand-soft/35 sm:h-[630px] lg:h-[590px]"
+                  aria-label="Loading product showcase"
+                />
+              }
+            >
+              <HeroProductEcosystem />
+            </Suspense>
           </motion.div>
         </div>
 

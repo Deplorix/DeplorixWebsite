@@ -1,8 +1,8 @@
 import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import Index from "./pages/Index";
 
+const Index = lazy(() => import("./pages/Index"));
 const Explore = lazy(() => import("./pages/Explore"));
 const Learn = lazy(() => import("./pages/Learn"));
 const DivisionWork = lazy(() => import("./pages/DivisionWork"));
