@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import type { Certificate } from "@/lib/certificate-data";
 import { generateCertificatePdf, generateQrDataUrl, VERIFY_BASE_URL } from "@/lib/certificate";
+import Seo from "@/components/Seo";
 
 const empty: Certificate = {
   certificate_id: "",
@@ -172,6 +173,12 @@ const AdminCertificates = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Manage Certificates | DeploriX Admin"
+        description="Internal administrative portal for managing DeploriX Technologies internship certificates."
+        canonical="https://deplorixtechnologies.site/admin/certificates"
+        noindex
+      />
       <Navbar />
       <main id="main-content" className="pt-28 pb-20 px-6 md:px-12">
         <div className="max-w-7xl mx-auto">

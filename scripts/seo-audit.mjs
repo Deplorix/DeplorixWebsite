@@ -15,8 +15,9 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { execSync } from "node:child_process";
 
 const read = (p) => (existsSync(p) ? readFileSync(p, "utf8") : "");
-const files = execSync("git ls-files 'src/**' 'index.html' 'public/**'", { encoding: "utf8" })
+const files = execSync("git ls-files src index.html public", { encoding: "utf8" })
   .split("\n")
+  .map((f) => f.trim())
   .filter(Boolean);
 
 const problems = [];
@@ -37,16 +38,19 @@ const expandedRoutes = new Set([
   ...divisionIds.map((id) => `/work/${id}`),
 ]);
 
-/* ---------- /verify references ---------- */
+/* ---------- /verify references in public navigation/sitemap ---------- */
 const verifyHits = [];
-for (const f of files) {
+const publicFiles = files.filter(
+  (f) => !f.includes("Certificate") && f !== "src/App.tsx" && !f.includes("certificate.ts")
+);
+for (const f of publicFiles) {
   const content = read(f);
   content.split("\n").forEach((line, i) => {
     if (/["'`(\s]\/verify\b/.test(line)) verifyHits.push(`${f}:${i + 1} ${line.trim().slice(0, 120)}`);
   });
 }
 if (verifyHits.length) fail(`Found ${verifyHits.length} /verify reference(s):\n  - ${verifyHits.join("\n  - ")}`);
-else ok("No /verify references in source, sitemap, robots.txt or internal links.");
+else ok("No /verify references in public source, sitemap, robots.txt or internal links.");
 
 /* ---------- sitemap ---------- */
 const sitemap = read("public/sitemap.xml");

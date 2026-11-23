@@ -90,6 +90,7 @@ const DivisionWork = () => {
         title={extras.seo.title}
         description={extras.seo.description}
         canonical={`${BASE_URL}/work/${division.id}`}
+        keywords={extras.seo.keywords}
         jsonLd={jsonLd}
       />
       <Navbar />

@@ -19,6 +19,7 @@ const NotFound = () => {
         title="Page Not Found | DeploriX Technologies"
         description="The page you are looking for does not exist on DeploriX Technologies."
         canonical="https://deplorixtechnologies.site/404"
+        noindex
       />
       <Navbar />
 

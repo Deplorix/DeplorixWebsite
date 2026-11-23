@@ -296,7 +296,7 @@ const HeroProductEcosystem = () => {
                         <>
                           <img
                             src={featuredProject.image}
-                            alt=""
+                            alt={`${featuredProject.title} project showcase`}
                             width={360}
                             height={260}
                             className="absolute inset-0 h-full w-full object-cover opacity-70"

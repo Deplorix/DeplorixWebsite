@@ -125,9 +125,10 @@ const Learn = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title="DeploriX Learn | Practical, Mentor-Led Career Training"
+        title="DeploriX Learn – Practical, Mentor-Led Career Training & Internships"
         description="Build job-ready skills with DeploriX Learn through five industry-relevant courses, hands-on projects, expert guidance and career preparation."
         canonical="https://deplorixtechnologies.site/learn"
+        keywords="DeploriX Learn, Python Full Stack Course, Java Full Stack Training, UI UX Design Course, Digital Marketing Training Bangalore, Software Internship, Student Tech Programs"
         jsonLd={[
           {
             "@context": "https://schema.org",
@@ -145,6 +146,14 @@ const Learn = () => {
               name: faq.question,
               acceptedAnswer: { "@type": "Answer", text: faq.answer },
             })),
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://deplorixtechnologies.site/" },
+              { "@type": "ListItem", position: 2, name: "Learn", item: "https://deplorixtechnologies.site/learn" },
+            ],
           },
         ]}
       />

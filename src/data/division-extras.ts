@@ -10,7 +10,7 @@ export type CaseStudy = {
 export type DivisionExtras = {
   metrics: { value: string; label: string }[];
   testimonial: { quote: string; author: string; role: string };
-  seo: { title: string; description: string };
+  seo: { title: string; description: string; keywords?: string };
   intro: string;
   caseStudies: CaseStudy[];
 };
@@ -32,6 +32,8 @@ export const divisionExtras: Record<string, DivisionExtras> = {
       title: "Web & App Development Case Studies | Deplorix Tech Bangalore",
       description:
         "Real Deplorix Tech work: dashboards, mobile apps and e-commerce platforms built for startups and businesses in Bangalore. See the scope, approach and outcomes.",
+      keywords:
+        "Deplorix Tech, Web Development Bangalore, Mobile App Development, Custom Software Engineering, FinFlow Dashboard, HealthTrack Mobile, ShopEase Commerce, React Native Apps, SaaS MVP",
     },
     intro:
       "Selected Deplorix Tech builds — web applications, mobile apps and commerce platforms delivered end to end, from scoping through post-launch support.",
@@ -105,6 +107,8 @@ export const divisionExtras: Record<string, DivisionExtras> = {
       title: "Digital Marketing & Founder Branding Work | Deplorix Digital",
       description:
         "Social media management, founder personal branding and performance marketing campaigns by Deplorix Digital, Bangalore. See the strategy, execution and results.",
+      keywords:
+        "Deplorix Digital, Founder Personal Branding, Digital Marketing Agency Bangalore, Social Media Management, D2C Marketing, Performance Ads, Brand Identity Design",
     },
     intro:
       "Selected Deplorix Digital work — founder branding, performance campaigns and identity systems built to run consistently, month after month.",
@@ -178,6 +182,8 @@ export const divisionExtras: Record<string, DivisionExtras> = {
       title: "Final Year Project Case Studies | Deplorix Projects Bangalore",
       description:
         "Real final year projects delivered for CSE, IT, ECE, BCA and MCA students — working code, full documentation, 1:1 mentorship and viva preparation.",
+      keywords:
+        "Deplorix Projects, Final Year Projects Bangalore, BTech Projects CSE, MCA Final Year Projects, IEEE Projects, AI ML Final Year Project, IoT Project, Python Project",
     },
     intro:
       "Selected Deplorix Projects builds — final year projects delivered with working code, college-format documentation and viva preparation.",
@@ -251,6 +257,8 @@ export const divisionExtras: Record<string, DivisionExtras> = {
       title: "Business Process & Support Case Studies | Deplorix BPS",
       description:
         "Customer support, back-office and process outsourcing work by Deplorix Business Process Solutions — trained teams, clear SLAs and measurable outcomes.",
+      keywords:
+        "Deplorix BPS, Business Process Solutions Bangalore, Customer Support Outsourcing, Technical Support Desk, Back Office Operations, Process Audit",
     },
     intro:
       "Selected Deplorix Business Process Solutions engagements — support desks, back-office operations and process redesign run by trained teams.",
@@ -324,6 +332,8 @@ export const divisionExtras: Record<string, DivisionExtras> = {
       title: "Training & Placement Case Studies | Deplorix Training Bangalore",
       description:
         "Job-readiness, communication and corporate training programs by Deplorix Training — curriculum, assessment and placement pathway outcomes.",
+      keywords:
+        "Deplorix Training, Corporate Tech Training, Job Readiness Programs Bangalore, Student Training and Placement, Talent Pipeline, Upskilling",
     },
     intro:
       "Selected Deplorix Training programs — job-readiness batches, placement pathways and corporate curricula built around real workflows.",

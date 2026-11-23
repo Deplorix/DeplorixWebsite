@@ -25,9 +25,27 @@ const Explore = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title="Explore Our Divisions & Work | DeploriX Technologies"
-        description="Tap through DeploriX's five divisions on an interactive phone — see what each team builds, the projects we've shipped, and open the full case study."
+        title="Explore What We Build – Deplorix Interactive Product Showcase"
+        description="Tap through DeploriX's five divisions on an interactive mobile simulator — see what each team builds, view live case studies, and explore tech stacks."
         canonical={`${BASE_URL}/explore`}
+        keywords="Deplorix Explore, Interactive Product Showcase, Deplorix Tech, Deplorix Digital, Deplorix Projects, Deplorix BPS, Deplorix Training, Mobile App Showcase"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "Explore DeploriX Divisions & Work",
+            url: `${BASE_URL}/explore`,
+            description: "Interactive showcase of products, case studies, and engineering capabilities across DeploriX Technologies.",
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: `${BASE_URL}/` },
+              { "@type": "ListItem", position: 2, name: "Explore", item: `${BASE_URL}/explore` },
+            ],
+          },
+        ]}
       />
       <Navbar />
 

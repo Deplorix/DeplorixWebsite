@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "server": "node server/index.js",
-    "build": "node scripts/check-favicons.mjs && vite build",
-    "build:dev": "node scripts/check-favicons.mjs && vite build --mode development",
+    "sitemap:generate": "node scripts/generate-sitemap.mjs",
+    "build": "node scripts/generate-sitemap.mjs && node scripts/check-favicons.mjs && vite build",
+    "build:dev": "node scripts/generate-sitemap.mjs && node scripts/check-favicons.mjs && vite build --mode development",
     "check:favicons": "node scripts/check-favicons.mjs",
     "lint": "eslint .",
     "preview": "vite preview",

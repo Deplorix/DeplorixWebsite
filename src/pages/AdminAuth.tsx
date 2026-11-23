@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 
 const AdminAuth = () => {
   const navigate = useNavigate();
@@ -30,6 +31,12 @@ const AdminAuth = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Admin Sign In | DeploriX Technologies"
+        description="Internal administrative sign in for DeploriX Technologies certificate management."
+        canonical="https://deplorixtechnologies.site/admin/login"
+        noindex
+      />
       <Navbar />
       <main id="main-content" className="pt-28 pb-20 px-6">
         <div className="max-w-md mx-auto bg-card border border-border rounded-3xl p-8 shadow-[var(--shadow-card)]">

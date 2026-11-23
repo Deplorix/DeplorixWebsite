@@ -60,6 +60,7 @@ const CertificateVerification = () => {
         title={`${decodedId || "Certificate"} Verification | DeploriX Technologies`}
         description="Verify the authenticity and internship details of a DeploriX Technologies certificate."
         canonical={canonical}
+        noindex
       />
       <Navbar />
       <main id="main-content" className="flex flex-1 items-center justify-center px-5 py-32 sm:px-6">

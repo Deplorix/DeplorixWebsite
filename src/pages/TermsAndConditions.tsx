@@ -88,9 +88,27 @@ const TermsAndConditions = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title="Terms & Conditions | DeploriX Technologies"
-        description="Review the terms and conditions for DeploriX Technologies software development, student projects, digital services, and BPS."
+        title="Terms of Service & Privacy Policy | DeploriX Technologies"
+        description="Review the terms and conditions and privacy policy for DeploriX Technologies software development, student projects, digital services, and BPS."
         canonical={`${BASE_URL}/terms`}
+        keywords="DeploriX Terms and Conditions, Privacy Policy, Software Service Agreement, Terms of Service Bangalore"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: "Terms & Conditions — DeploriX Technologies",
+            url: `${BASE_URL}/terms`,
+            description: "Terms and conditions governing the use of DeploriX Technologies website, services, and digital products.",
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: `${BASE_URL}/` },
+              { "@type": "ListItem", position: 2, name: "Terms & Conditions", item: `${BASE_URL}/terms` },
+            ],
+          },
+        ]}
       />
       <Navbar />
       <main id="main-content" className="px-5 pb-20 pt-28 sm:px-6 md:px-10 md:pt-36 lg:px-16">

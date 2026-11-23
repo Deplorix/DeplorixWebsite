@@ -207,7 +207,7 @@ const Navbar = () => {
             aria-label="DeploriX Technologies home"
           >
             <span className="grid h-10 w-10 place-items-center rounded-2xl border border-border/70 bg-card shadow-[var(--shadow-soft)] transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105">
-              <img src={logo} alt="" className="h-8 w-8 rounded-full object-contain" width={32} height={32} />
+              <img src={logo} alt="DeploriX Technologies logo" className="h-8 w-8 rounded-full object-contain" width={32} height={32} />
             </span>
             <span className="font-display text-[15px] font-extrabold leading-[1.05] tracking-[-0.03em]">
               deploriX

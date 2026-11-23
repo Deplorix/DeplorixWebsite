@@ -82,7 +82,7 @@ const Footer = () => {
               aria-label="DeploriX Technologies home"
             >
               <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white">
-                <img src={logo} alt="" className="h-9 w-9 rounded-full object-contain" width={36} height={36} />
+                <img src={logo} alt="DeploriX Technologies logo" className="h-9 w-9 rounded-full object-contain" width={36} height={36} />
               </span>
               <span className="font-display text-xl font-extrabold tracking-[-0.035em]">deploriX</span>
             </Link>

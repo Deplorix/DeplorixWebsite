@@ -34,6 +34,21 @@ const RouteScrollManager = () => {
       return () => window.clearTimeout(timer);
     }
 
+    const sectionMap: Record<string, string> = {
+      "/about": "solutions",
+      "/services": "products",
+      "/products": "pricing",
+      "/contact": "contact",
+    };
+
+    const targetSection = sectionMap[pathname];
+    if (targetSection) {
+      const timer = window.setTimeout(() => {
+        document.getElementById(targetSection)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+      return () => window.clearTimeout(timer);
+    }
+
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [pathname, hash]);
 
@@ -52,6 +67,10 @@ const App = () => (
         <Suspense fallback={<RouteLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/about" element={<Index />} />
+            <Route path="/services" element={<Index />} />
+            <Route path="/products" element={<Index />} />
+            <Route path="/contact" element={<Index />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/learn" element={<Learn />} />
             <Route path="/work/:divisionId" element={<DivisionWork />} />
