@@ -221,7 +221,7 @@ const Index = () => {
         <DeferredSection sectionId="products" minHeight="1050px" tabletMinHeight="1650px" mobileMinHeight="2090px"><ServicesSection /></DeferredSection>
         <DeferredSection sectionId="pricing" minHeight="1450px" tabletMinHeight="2250px" mobileMinHeight="2820px"><ProjectsSection /></DeferredSection>
         <DeferredSection sectionId="process" minHeight="760px" tabletMinHeight="1250px" mobileMinHeight="1580px"><WorkflowSection /></DeferredSection>
-        <DeferredSection sectionId="fyp" minHeight="980px" tabletMinHeight="1180px" mobileMinHeight="1320px"><FYPSection /></DeferredSection>
+        <DeferredSection sectionId="fyp" minHeight="980px" tabletMinHeight="1180px" mobileMinHeight="1730px"><FYPSection /></DeferredSection>
         <DeferredSection sectionId="resources" minHeight="1050px" tabletMinHeight="1320px" mobileMinHeight="1460px"><InternshipSection /></DeferredSection>
         <DeferredSection sectionId="upcoming" minHeight="1100px" tabletMinHeight="1450px" mobileMinHeight="1640px"><UpcomingProjectsSection /></DeferredSection>
         <DeferredSection sectionId="advisor" minHeight="1050px" tabletMinHeight="1320px" mobileMinHeight="1460px"><ProjectAdvisor /></DeferredSection>

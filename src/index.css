@@ -232,6 +232,13 @@
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
+
+  /* Large filtered overlays are expensive on integrated/mobile GPUs. The
+     gradients underneath preserve the same visual depth without repainting a
+     full-screen noise texture on every scroll frame. */
+  .noise-overlay {
+    display: none;
+  }
 }
 
 @media (max-width: 639px) {
@@ -252,14 +259,6 @@
     transition-duration: 0.01ms !important;
   }
 
-  /* Keep the user-requested technology rail moving even when the broad site
-     motion fallback is active. It remains slow, linear and transform-only. */
-  .logo-marquee-track {
-    animation-name: marquee !important;
-    animation-duration: 24s !important;
-    animation-timing-function: linear !important;
-    animation-iteration-count: infinite !important;
-  }
 }
 
 @layer utilities {

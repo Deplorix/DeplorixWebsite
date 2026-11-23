@@ -1,3 +1,6 @@
+import { useRef } from "react";
+import { useInView, useReducedMotion } from "framer-motion";
+
 /** Infinite marquee of the stacks and platforms we ship with. */
 const items: { name: string; className: string }[] = [
   { name: "React", className: "font-semibold tracking-tight" },
@@ -12,23 +15,33 @@ const items: { name: string; className: string }[] = [
   { name: "Supabase", className: "font-semibold tracking-tight" },
 ];
 
-const LogoStrip = ({ label = "Built with the stacks modern teams trust" }: { label?: string }) => (
-  <div className="relative border-t border-border/60 bg-card/40 backdrop-blur-sm">
-    <p className="sr-only">{label}</p>
-    <div className="max-w-7xl mx-auto overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)]">
-      <div className="logo-marquee-track flex w-max animate-marquee items-center gap-16 py-6 cursor-default select-none">
-        {[...items, ...items].map((item, i) => (
-          <span
-            key={`${item.name}-${i}`}
-            aria-hidden={i >= items.length}
-            className={`text-lg md:text-xl text-foreground/45 whitespace-nowrap transition-colors hover:text-foreground cursor-default select-none ${item.className}`}
-          >
-            {item.name}
-          </span>
-        ))}
+const LogoStrip = ({ label = "Built with the stacks modern teams trust" }: { label?: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { margin: "120px 0px" });
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <div ref={ref} className="relative border-t border-border/60 bg-card/40 backdrop-blur-sm">
+      <p className="sr-only">{label}</p>
+      <div className="max-w-7xl mx-auto overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)]">
+        <div
+          className={`logo-marquee-track flex w-max items-center gap-16 py-6 cursor-default select-none ${
+            inView && !reduceMotion ? "animate-marquee" : ""
+          }`}
+        >
+          {[...items, ...items].map((item, i) => (
+            <span
+              key={`${item.name}-${i}`}
+              aria-hidden={i >= items.length}
+              className={`text-lg md:text-xl text-foreground/45 whitespace-nowrap transition-colors hover:text-foreground cursor-default select-none ${item.className}`}
+            >
+              {item.name}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default LogoStrip;

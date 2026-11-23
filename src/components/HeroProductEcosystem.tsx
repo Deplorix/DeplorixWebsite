@@ -67,7 +67,7 @@ const HeroProductEcosystem = () => {
   });
 
   const motionEnabled = isInView && pageVisible && !reduceMotion;
-  const automaticMotion = motionEnabled && hasFinePointer && !userPaused;
+  const automaticMotion = motionEnabled && hasFinePointer && sceneHovered && !userPaused;
   const autoCycle = motionEnabled && !userPaused && !hasFocus && !manualPause;
   const active = divisions[activeIndex];
   const featuredProject = projectsForDivision(active.id)[0];
@@ -199,7 +199,7 @@ const HeroProductEcosystem = () => {
       <motion.div
         animate={automaticMotion ? { y: [0, -7, 0], rotateZ: [-0.3, 0.3, -0.3] } : { y: 0, rotateZ: 0 }}
         transition={automaticMotion ? { duration: 9, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
-        className="absolute inset-0 will-change-transform"
+        className={`absolute inset-0 ${automaticMotion ? "will-change-transform" : ""}`}
         style={{ transformStyle: "preserve-3d" }}
       >
         <motion.div
@@ -217,7 +217,7 @@ const HeroProductEcosystem = () => {
           style={{ transformStyle: "preserve-3d" }}
         >
           <motion.div
-            className="absolute inset-0 will-change-transform"
+            className={`absolute inset-0 ${sceneHovered && motionEnabled ? "will-change-transform" : ""}`}
             animate={sceneHovered && motionEnabled ? { scale: 1.018 } : { scale: 1 }}
             transition={{ duration: 0.32, ease }}
             style={{ rotateX, rotateY, y: pointerLift, transformStyle: "preserve-3d" }}

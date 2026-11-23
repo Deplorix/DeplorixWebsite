@@ -28,3 +28,6 @@ dist-ssr
 
 powershell.cmd
 seo-audit-report.md
+
+.vercel
+.env*
