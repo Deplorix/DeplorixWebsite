@@ -268,3 +268,26 @@
   .animate-delay-400 { animation-delay: 400ms; }
   .animate-delay-500 { animation-delay: 500ms; }
 }
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* When printing, hide all non-printable chrome and buttons */
+  button,
+  .print\:hidden,
+  .no-print,
+  #whatsapp-floating-button {
+    display: none !important;
+  }
+}
+
