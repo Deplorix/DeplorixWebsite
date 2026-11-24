@@ -17,7 +17,7 @@ const WorkflowSection = () => (
             How we work
           </span>
           <h2 className="mt-6 font-display text-4xl font-bold leading-[1.02] tracking-[-0.045em] text-white md:text-5xl lg:text-6xl">
-            A clear path from idea to impact.
+            A Clear Path F  rom Idea To Impact.
           </h2>
         </div>
         <p className="max-w-xl text-base leading-7 text-white/60 md:justify-self-end md:text-lg">

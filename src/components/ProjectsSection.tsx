@@ -101,7 +101,7 @@ const ProjectsSection = () => {
         <AnimatedSection className="mb-12 grid gap-7 md:mb-16 md:grid-cols-[.9fr_1.1fr] md:items-end">
           <div>
             <span className="pill-label">Selected work</span>
-            <h2 className="section-heading mt-6">Built for the real world, not the moodboard.</h2>
+            <h2 className="section-heading mt-6">Built For The Real World, Not The Moodboard.</h2>
           </div>
           <p className="section-copy max-w-xl md:justify-self-end">
             A selection of products shaped from early decisions through launch—combining useful experiences with dependable engineering.

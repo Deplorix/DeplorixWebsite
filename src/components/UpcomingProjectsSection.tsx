@@ -55,7 +55,7 @@ const UpcomingProjectsSection = () => {
       <div className="site-container grid gap-12 lg:grid-cols-[.72fr_1.28fr] lg:gap-20">
         <AnimatedSection className="lg:sticky lg:top-28 lg:self-start">
           <span className="pill-label">Product pipeline</span>
-          <h2 className="section-heading mt-6">What we’re building next.</h2>
+          <h2 className="section-heading mt-6">What We’re Building Next.</h2>
           <p className="section-copy mt-6 max-w-md">
             Four focused products moving from validated problem to working release—each designed around a clear operational need.
           </p>

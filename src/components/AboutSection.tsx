@@ -29,7 +29,7 @@ const AboutSection = () => {
           <AnimatedSection>
             <span className="pill-label">Why DeploriX</span>
             <h2 className="section-heading mt-6">
-              Senior thinking without the agency drag.
+              Senior Thinking Without The Agency Drag.
             </h2>
             <p className="section-copy mt-6 max-w-xl">
               We bring product strategy, thoughtful design and reliable engineering into one accountable team—so decisions are faster and launches feel calmer.

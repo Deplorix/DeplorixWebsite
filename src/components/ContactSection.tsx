@@ -8,7 +8,7 @@ const ContactSection = () => (
       <AnimatedSection className="grid gap-7 md:grid-cols-[.9fr_1.1fr] md:items-end">
         <div>
           <span className="pill-label">Get in touch</span>
-          <h2 className="section-heading mt-6">A good project starts with a clear conversation.</h2>
+          <h2 className="section-heading mt-6">A Good Project Starts With A Clear Conversation.</h2>
         </div>
         <div className="max-w-xl md:justify-self-end">
           <p className="section-copy">

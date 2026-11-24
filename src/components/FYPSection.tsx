@@ -51,7 +51,7 @@ const FYPSection = () => {
                 <Sparkles size={13} /> For students
               </span>
               <h2 className="mt-5 sm:mt-7 font-display text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.05] tracking-[-0.04em] text-white">
-                Build a project you can actually defend.
+                Build A Project You Can Actually Defend.
               </h2>
               <p className="mt-4 sm:mt-5 max-w-lg text-sm sm:text-base leading-6 sm:leading-7 text-white/80">
                 Thoughtful mentorship for final-year teams—from choosing the right problem to explaining every decision during your viva.

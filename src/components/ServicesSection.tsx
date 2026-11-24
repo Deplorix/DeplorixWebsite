@@ -32,7 +32,7 @@ const ServicesSection = () => {
         <AnimatedSection className="grid gap-7 md:grid-cols-[.9fr_1.1fr] md:items-end">
           <div>
             <span className="pill-label">Specialist divisions</span>
-            <h2 className="section-heading mt-6">One partner. Five ways to move forward.</h2>
+            <h2 className="section-heading mt-6">One Partner. Five Ways to Move Forward.</h2>
           </div>
           <p className="section-copy max-w-xl md:justify-self-end">
             Pick the team that matches your goal. Every division shares the same product thinking, delivery standards and senior oversight.

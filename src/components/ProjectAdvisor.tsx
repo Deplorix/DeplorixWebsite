@@ -138,7 +138,7 @@ const ProjectAdvisor = () => {
         <AnimatedSection className="grid gap-7 md:grid-cols-[.9fr_1.1fr] md:items-end">
           <div>
             <span className={type.eyebrow}>AI project advisor</span>
-            <h2 className="section-heading mt-6">Turn a rough idea into a useful starting plan.</h2>
+            <h2 className="section-heading mt-6">Turn A Rough Idea Into A Useful Starting Plan.</h2>
           </div>
           <p className="section-copy max-w-xl md:justify-self-end">
             Describe the outcome you want. We’ll match the right DeploriX division, outline the likely scope and prepare a brief you can send to the team.

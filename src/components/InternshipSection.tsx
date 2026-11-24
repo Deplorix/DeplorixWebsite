@@ -99,7 +99,7 @@ const InternshipSection = () => {
 
           <AnimatedSection delay={0.12}>
             <span className="pill-label">Careers & training</span>
-            <h2 className="section-heading mt-6">An internship built around doing the work.</h2>
+            <h2 className="section-heading mt-6">An Internship Built Around Doing the Work.</h2>
             <p className="section-copy mt-6 max-w-xl">
               Learn in a working team, get direct feedback and build the habits companies actually expect from early-career talent.
             </p>
