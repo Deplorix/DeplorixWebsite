@@ -182,6 +182,74 @@ const PAGE_SEO: Record<
       },
     ],
   },
+  "/internship": {
+    title: "Software Engineering Internships – Deplorix | Real Product Squads",
+    description:
+      "Apply for industry-ready engineering internships at DeploriX Technologies. Work on live products, get senior mentorship, and build verifiable proof for your tech career.",
+    canonical: "https://deplorixtechnologies.site/internship",
+    keywords:
+      "Software Internship, Deplorix Internship, Web Development Internship, Full Stack Internship, Java Internship, Python Data Science Internship, Bangalore Tech Internship",
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "EducationalOccupationalProgram",
+        name: "DeploriX Industry-Ready Engineering Internship",
+        description: "Hands-on engineering internship working in live product squads across full-stack web, backend, data science, cloud, and UI/UX.",
+        provider: {
+          "@type": "Organization",
+          name: "DeploriX Technologies",
+          url: "https://deplorixtechnologies.site/",
+        },
+        timeToComplete: "P3M",
+        educationalProgramMode: "hybrid",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: "https://deplorixtechnologies.site/" },
+          { "@type": "ListItem", position: 2, name: "Internship", item: "https://deplorixtechnologies.site/internship" },
+        ],
+      },
+    ],
+  },
+  "/internships": {
+    title: "Software Engineering Internships – Deplorix | Real Product Squads",
+    description:
+      "Apply for industry-ready engineering internships at DeploriX Technologies. Work on live products, get senior mentorship, and build verifiable proof for your tech career.",
+    canonical: "https://deplorixtechnologies.site/internship",
+    keywords:
+      "Software Internship, Deplorix Internship, Web Development Internship, Full Stack Internship, Java Internship, Python Data Science Internship, Bangalore Tech Internship",
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: "https://deplorixtechnologies.site/" },
+          { "@type": "ListItem", position: 2, name: "Internships", item: "https://deplorixtechnologies.site/internship" },
+        ],
+      },
+    ],
+  },
+  "/internship/apply": {
+    title: "Apply for Internship – DeploriX Technologies | Student & Early-Career Enrollment",
+    description:
+      "Apply for the DeploriX 2026 Cohort Internship. Submit your academic background, preferred tech track, and portfolio to join our product squads.",
+    canonical: "https://deplorixtechnologies.site/internship/apply",
+    keywords:
+      "Apply Internship Bangalore, Deplorix Internship Application, Software Internship Enrollment, Student Tech Internship Apply",
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: "https://deplorixtechnologies.site/" },
+          { "@type": "ListItem", position: 2, name: "Internship", item: "https://deplorixtechnologies.site/internship" },
+          { "@type": "ListItem", position: 3, name: "Apply", item: "https://deplorixtechnologies.site/internship/apply" },
+        ],
+      },
+    ],
+  },
 };
 
 const IdleEnhancements = () => {
@@ -222,7 +290,7 @@ const Index = () => {
         <DeferredSection sectionId="pricing" minHeight="1450px" tabletMinHeight="2250px" mobileMinHeight="2820px"><ProjectsSection /></DeferredSection>
         <DeferredSection sectionId="process" minHeight="760px" tabletMinHeight="1250px" mobileMinHeight="1580px"><WorkflowSection /></DeferredSection>
         <DeferredSection sectionId="fyp" minHeight="980px" tabletMinHeight="1180px" mobileMinHeight="1730px"><FYPSection /></DeferredSection>
-        <DeferredSection sectionId="resources" minHeight="1050px" tabletMinHeight="1320px" mobileMinHeight="1460px"><InternshipSection /></DeferredSection>
+        <DeferredSection sectionId="internship" minHeight="1050px" tabletMinHeight="1320px" mobileMinHeight="1460px"><InternshipSection /></DeferredSection>
         <DeferredSection sectionId="upcoming" minHeight="1100px" tabletMinHeight="1450px" mobileMinHeight="1640px"><UpcomingProjectsSection /></DeferredSection>
         <DeferredSection sectionId="advisor" minHeight="1050px" tabletMinHeight="1320px" mobileMinHeight="1460px"><ProjectAdvisor /></DeferredSection>
         <DeferredSection sectionId="contact" minHeight="1200px" tabletMinHeight="1650px" mobileMinHeight="1970px"><ContactSection /></DeferredSection>

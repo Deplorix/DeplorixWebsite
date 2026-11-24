@@ -168,6 +168,15 @@
     mask-image: radial-gradient(ellipse 60% 55% at 50% 45%, #000 40%, transparent 80%);
   }
 
+  .bg-grid-accent {
+    background-image:
+      linear-gradient(to right, hsl(268 100% 88% / 0.38) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(0 0% 100% / 0.24) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask-image: radial-gradient(ellipse 78% 72% at 52% 45%, #000 28%, transparent 86%);
+    mask-image: radial-gradient(ellipse 78% 72% at 52% 45%, #000 28%, transparent 86%);
+  }
+
   .bg-brand-gradient {
     background-image: var(--gradient-brand);
   }

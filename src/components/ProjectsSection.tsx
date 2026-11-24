@@ -121,18 +121,16 @@ const ProjectsSection = () => {
             <BrandXMark className="absolute -bottom-28 -right-24 z-0 w-80 opacity-[0.07]" />
             <div className="relative min-h-[320px] overflow-hidden bg-[radial-gradient(circle_at_35%_30%,rgba(126,90,255,0.3),transparent_58%)] sm:min-h-[440px] lg:min-h-[560px] lg:[perspective:1500px]">
               <div
-                className={`absolute inset-3 overflow-hidden rounded-[1.5rem] border border-white/15 bg-secondary shadow-[0_28px_70px_-30px_rgba(0,0,0,0.85)] sm:inset-5 lg:inset-7 lg:[transform-style:preserve-3d] ${
-                  reduceMotion
-                    ? ""
-                    : "lg:transition-transform lg:duration-700 lg:ease-out lg:[transform:rotateX(0deg)_rotateY(0deg)_translateZ(0)] lg:group-hover:[transform:rotateX(-1.5deg)_rotateY(3deg)_translateZ(18px)]"
-                }`}
+                className={`absolute inset-3 overflow-hidden rounded-[1.5rem] border border-white/15 bg-secondary shadow-[0_28px_70px_-30px_rgba(0,0,0,0.85)] sm:inset-5 lg:inset-7 lg:[transform-style:preserve-3d] ${reduceMotion
+                  ? ""
+                  : "lg:transition-transform lg:duration-700 lg:ease-out lg:[transform:rotateX(0deg)_rotateY(0deg)_translateZ(0)] lg:group-hover:[transform:rotateX(-1.5deg)_rotateY(3deg)_translateZ(18px)]"
+                  }`}
               >
                 <img
                   src={featured.image}
                   alt={`${featured.title} product interface`}
-                  className={`absolute inset-0 h-full w-full object-cover ${
-                    reduceMotion ? "" : "transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-                  }`}
+                  className={`absolute inset-0 h-full w-full object-cover ${reduceMotion ? "" : "transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                    }`}
                   loading="lazy"
                   width={1920}
                   height={1440}

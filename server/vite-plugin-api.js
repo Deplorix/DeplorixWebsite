@@ -74,7 +74,12 @@ export function apiMiddlewarePlugin() {
             });
           }
 
-          if (url === "/api/internship" && req.method === "POST") {
+          if (
+            (url === "/api/internship" ||
+              url === "/api/internship/apply" ||
+              url === "/api/intenship/apply") &&
+            req.method === "POST"
+          ) {
             const body = await parseJsonBody(req);
             const prepared = prepareInternshipApplication(body);
             if (prepared.isSpam) {

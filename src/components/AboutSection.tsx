@@ -56,7 +56,7 @@ const AboutSection = () => {
               <div className="card-soft group h-full p-7 hover-lift md:p-8">
                 <div className="mb-8 flex items-center justify-between">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent transition-transform duration-300 group-hover:scale-105">
-                  <feature.icon size={22} className="text-accent-foreground" />
+                    <feature.icon size={22} className="text-accent-foreground" />
                   </div>
                   <span className="font-display text-sm font-bold text-muted-foreground/50">0{i + 1}</span>
                 </div>

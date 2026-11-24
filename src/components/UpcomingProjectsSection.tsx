@@ -6,7 +6,7 @@ import { Calendar, Landmark, Truck, Users } from "lucide-react";
 const upcomingProjects = [
   {
     icon: Calendar,
-    title: "Collevnto",
+    title: "Collevento",
     subtitle: "College Event Management Platform",
     description:
       "A comprehensive platform designed to help colleges conduct events seamlessly — from planning and promotion to ticket generation, attendee management, and post-event analytics. Everything your institution needs in one place.",
@@ -36,7 +36,7 @@ const upcomingProjects = [
   },
   {
     icon: Users,
-    title: "WorkSpher",
+    title: "WorkSphere",
     subtitle: "Employee Management Application",
     description:
       "An all-in-one employee management app for tracking attendance, managing payroll, handling leave requests, and monitoring performance — empowering HR teams and managers to work smarter.",

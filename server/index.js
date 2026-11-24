@@ -49,7 +49,7 @@ app.post("/api/inquiry", async (req, res) => {
   }
 });
 
-app.post("/api/internship", async (req, res) => {
+const handleInternshipApply = async (req, res) => {
   try {
     const prepared = prepareInternshipApplication(req.body || {});
     if (prepared.isSpam) {
@@ -68,7 +68,11 @@ app.post("/api/internship", async (req, res) => {
     const response = publicInternshipError(error);
     res.status(response.statusCode).json(response.body);
   }
-});
+};
+
+app.post("/api/internship/apply", handleInternshipApply);
+app.post("/api/internship", handleInternshipApply);
+app.post("/api/intenship/apply", handleInternshipApply);
 
 // Serve static build in production
 const distPath = path.resolve(__dirname, "../dist");

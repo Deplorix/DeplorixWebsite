@@ -75,7 +75,11 @@ export async function submitInquiry(payload: InquiryPayload) {
 }
 
 export async function submitInternshipApplication(payload: InternshipApplicationPayload) {
-  return postJson("/api/internship", payload);
+  return postJson("/api/internship/apply", payload);
+}
+
+export async function submitInternshipApply(payload: InternshipApplicationPayload) {
+  return postJson("/api/internship/apply", payload);
 }
 
 export async function checkApiHealth() {

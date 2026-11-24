@@ -41,15 +41,16 @@ const HeroSection = () => {
               transition={{ duration: 0.8, delay: 0.08, ease }}
               className="mt-6 font-display text-[clamp(2.7rem,6.5vw,5.5rem)] font-extrabold leading-[1.02] tracking-[-0.05em] text-foreground"
             >
-              We turn bold ideas into
-              <span className="text-gradient inline-block pb-1"> products that ship.</span>
+              We Turn Bold Ideas Into
+              <span className="text-gradient inline-block pb-1"> Products That Ship.</span>
             </motion.h1>
 
             <motion.p
               initial={{ opacity: 0, y: 22 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.75, delay: 0.2, ease }}
-              className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground md:mt-6 md:text-xl md:leading-8"
+              className="mt-5 max-w-2xl text-base leading-7 
+              text-muted-foreground md:mt-6 md:text-xl md:leading-8"
             >
               Websites, apps, AI systems, digital growth and student projects—designed, built and supported by one focused team.
             </motion.p>
@@ -125,11 +126,9 @@ const HeroSection = () => {
           ].map(([value, label], index) => (
             <div
               key={label}
-              className={`px-4 py-4 sm:px-6 sm:py-5 md:px-7 ${
-                index % 2 ? "border-l border-border/70" : ""
-              } ${index > 1 ? "border-t border-border/70 md:border-t-0" : ""} ${
-                index === 2 ? "md:border-l" : ""
-              }`}
+              className={`px-4 py-4 sm:px-6 sm:py-5 md:px-7 ${index % 2 ? "border-l border-border/70" : ""
+                } ${index > 1 ? "border-t border-border/70 md:border-t-0" : ""} ${index === 2 ? "md:border-l" : ""
+                }`}
             >
               <p className="font-display text-xl font-extrabold tracking-tight text-foreground sm:text-2xl md:text-3xl">
                 {value}

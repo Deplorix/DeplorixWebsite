@@ -50,11 +50,10 @@ const ServicesSection = () => {
                     type="button"
                     onClick={() => selectDivision(division.id)}
                     aria-pressed={selected}
-                    className={`group flex min-w-max items-center gap-3 rounded-2xl border px-4 py-3.5 text-left transition-all duration-200 lg:min-w-0 ${
-                      selected
+                    className={`group flex min-w-max items-center gap-3 rounded-2xl border px-4 py-3.5 text-left transition-all duration-200 lg:min-w-0 ${selected
                         ? "border-foreground bg-foreground text-background shadow-[var(--shadow-card)]"
                         : "border-border/70 bg-card text-foreground hover:border-foreground/20"
-                    }`}
+                      }`}
                   >
                     <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${selected ? "bg-white/10" : division.iconBg}`}>
                       <division.icon size={17} />

@@ -39,6 +39,11 @@ const RouteScrollManager = () => {
       "/services": "products",
       "/products": "pricing",
       "/contact": "contact",
+      "/internship": "internship",
+      "/internships": "internship",
+      "/internship/apply": "internship",
+      "/internships/apply": "internship",
+      "/intenship/apply": "internship",
     };
 
     const targetSection = sectionMap[pathname];
@@ -71,6 +76,11 @@ const App = () => (
             <Route path="/services" element={<Index />} />
             <Route path="/products" element={<Index />} />
             <Route path="/contact" element={<Index />} />
+            <Route path="/internship" element={<Index />} />
+            <Route path="/internships" element={<Index />} />
+            <Route path="/internship/apply" element={<Index />} />
+            <Route path="/internships/apply" element={<Index />} />
+            <Route path="/intenship/apply" element={<Index />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/learn" element={<Learn />} />
             <Route path="/work/:divisionId" element={<DivisionWork />} />

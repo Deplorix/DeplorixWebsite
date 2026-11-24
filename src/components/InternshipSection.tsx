@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, Briefcase, CheckCircle2, Code2, GitBranch, Presentation, Users } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 import { Button } from "@/components/ui/button";
@@ -35,9 +36,45 @@ const outcomes = [
 
 const InternshipSection = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isApplyPath =
+        location.pathname === "/internship/apply" ||
+        location.pathname === "/internships/apply" ||
+        location.pathname === "/intenship/apply";
+      const searchParams = new URLSearchParams(location.search);
+      const isApplyQuery = searchParams.get("apply") === "true" || window.location.hash === "#apply";
+
+      if (isApplyPath || isApplyQuery) {
+        setDialogOpen(true);
+      }
+    }
+  }, [location.pathname, location.search]);
+
+  const handleOpenApply = () => {
+    setDialogOpen(true);
+    navigate("/internship/apply");
+  };
+
+  const handleDialogChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open) {
+      const isApplyPath =
+        location.pathname === "/internship/apply" ||
+        location.pathname === "/internships/apply" ||
+        location.pathname === "/intenship/apply";
+      if (isApplyPath) {
+        navigate("/internship", { replace: true });
+      }
+    }
+  };
 
   return (
-    <section id="resources" className="section-padding bg-surface-elevated">
+    <section id="internship" data-section-alias="resources" className="section-padding bg-surface-elevated relative">
+      <div id="resources" className="absolute -top-24 left-0 h-px w-px opacity-0 pointer-events-none" aria-hidden="true" />
       <div className="site-container">
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_.95fr] lg:gap-20">
           <AnimatedSection>
@@ -92,7 +129,7 @@ const InternshipSection = () => {
             </div>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Button variant="brand" className="h-12 px-7" onClick={() => setDialogOpen(true)}>
+              <Button variant="brand" className="h-12 px-7" onClick={handleOpenApply}>
                 Apply for the internship <ArrowRight size={16} />
               </Button>
               <p className="text-xs leading-5 text-muted-foreground">Applications are reviewed on a rolling basis.</p>
@@ -103,7 +140,7 @@ const InternshipSection = () => {
 
       <InternshipEnrollmentDialog
         open={dialogOpen}
-        onOpenChange={setDialogOpen}
+        onOpenChange={handleDialogChange}
       />
     </section>
   );

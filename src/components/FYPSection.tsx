@@ -44,7 +44,7 @@ const FYPSection = () => {
       <div className="site-container">
         <AnimatedSection className="grid gap-8 xl:grid-cols-[.88fr_1.12fr] xl:gap-12">
           <div className="relative overflow-hidden rounded-[1.75rem] bg-brand-gradient p-5 text-white shadow-[var(--shadow-brand)] sm:rounded-[2rem] sm:p-9 md:rounded-[2.5rem] lg:p-11">
-            <div className="absolute inset-0 bg-grid opacity-20" aria-hidden />
+            <div className="absolute inset-0 bg-grid-accent opacity-45" aria-hidden />
             <div className="absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-white/20 blur-3xl" aria-hidden />
             <div className="relative">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-white/80">
@@ -84,11 +84,10 @@ const FYPSection = () => {
                 return (
                   <div
                     key={level.name}
-                    className={`group grid w-full gap-4 rounded-2xl border p-4 sm:p-6 lg:w-auto lg:min-w-0 lg:grid-cols-[1fr_auto] lg:items-center lg:rounded-none lg:border-x-0 lg:border-b-0 lg:border-t lg:bg-transparent lg:px-0 lg:py-7 lg:first:border-t-0 lg:first:pt-0 lg:last:pb-0 ${
-                      isFeatured
+                    className={`group grid w-full gap-4 rounded-2xl border p-4 sm:p-6 lg:w-auto lg:min-w-0 lg:grid-cols-[1fr_auto] lg:items-center lg:rounded-none lg:border-x-0 lg:border-b-0 lg:border-t lg:bg-transparent lg:px-0 lg:py-7 lg:first:border-t-0 lg:first:pt-0 lg:last:pb-0 ${isFeatured
                         ? "border-brand/40 bg-brand-soft/25 ring-1 ring-brand/20 lg:ring-0 lg:bg-transparent lg:border-border/70"
                         : "border-border/70 bg-secondary/35"
-                    }`}
+                      }`}
                   >
                     <div>
                       <div className="flex flex-wrap items-center gap-2.5">

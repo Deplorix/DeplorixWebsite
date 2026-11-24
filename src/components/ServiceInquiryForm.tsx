@@ -207,7 +207,7 @@ const ServiceInquiryForm = () => {
             <div className="absolute -left-16 -top-16 h-56 w-56 rounded-full bg-brand/20 blur-3xl" aria-hidden />
             <div className="relative">
               <p className="text-xs font-bold uppercase tracking-[0.13em] text-white/60">Start the conversation</p>
-              <h3 className="mt-4 font-display text-3xl font-bold leading-tight tracking-[-0.04em] text-white">Tell us where you want to go next.</h3>
+              <h3 className="mt-4 font-display text-3xl font-bold leading-tight tracking-[-0.04em] text-white">Tell Us Where You Want To Go Next.</h3>
               <p className="mt-4 text-sm leading-6 text-white/70">
                 Choose the closest-fit division and share enough context for us to make the first reply useful.
               </p>
@@ -250,11 +250,10 @@ const ServiceInquiryForm = () => {
                       trackEvent("division_selector_click", { division: division.id, location: "inquiry_form" });
                     }}
                     aria-pressed={isActive}
-                    className={`min-w-max rounded-full border px-3.5 py-2 text-xs font-bold transition-colors ${
-                      isActive
+                    className={`min-w-max rounded-full border px-3.5 py-2 text-xs font-bold transition-colors ${isActive
                         ? "border-foreground bg-foreground text-background"
                         : "border-border bg-card text-muted-foreground hover:text-foreground"
-                    }`}
+                      }`}
                   >
                     {division.short}
                   </button>
@@ -300,11 +299,10 @@ const ServiceInquiryForm = () => {
               {statusAlert && (
                 <div
                   role="status"
-                  className={`rounded-2xl p-4 text-xs sm:text-sm font-medium leading-relaxed ${
-                    statusAlert.type === "success"
+                  className={`rounded-2xl p-4 text-xs sm:text-sm font-medium leading-relaxed ${statusAlert.type === "success"
                       ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300"
                       : "border border-destructive/30 bg-destructive/10 text-destructive"
-                  }`}
+                    }`}
                 >
                   {statusAlert.message}
                 </div>
