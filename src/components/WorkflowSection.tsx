@@ -5,7 +5,7 @@ const steps = [
   { number: "01", title: "Discover", description: "We align on the problem, audience, goals and the smallest valuable first release.", deliverable: "Clear brief + roadmap" },
   { number: "02", title: "Design", description: "Flows, prototypes and visual direction are shaped with fast feedback loops.", deliverable: "Validated product direction" },
   { number: "03", title: "Build", description: "We engineer, integrate and test in focused milestones you can review as we go.", deliverable: "Production-ready release" },
-  { number: "04", title: "Launch & grow", description: "We deploy, measure, improve and stay close after the first release goes live.", deliverable: "Support + iteration plan" },
+  { number: "04", title: "Launch & Grow", description: "We deploy, measure, improve and stay close after the first release goes live.", deliverable: "Support + iteration plan" },
 ];
 
 const WorkflowSection = () => (

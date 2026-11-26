@@ -48,7 +48,7 @@ const WhatsAppButton = () => {
 
   return (
     <AnimatePresence>
-      {!stickyVisible && pastHero && !navOpen && (
+      {pastHero && !navOpen && (
         <motion.a
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -57,7 +57,12 @@ const WhatsAppButton = () => {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Chat on WhatsApp"
-          className="group fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-40 flex h-[52px] w-[52px] items-center justify-center gap-2 rounded-full bg-[#1fbd5c] text-white shadow-[0_16px_34px_-14px_rgba(31,189,92,.7)] transition-all duration-300 hover:-translate-y-1 hover:bg-[#19a950] hover:shadow-xl sm:bottom-6 sm:right-6 sm:h-auto sm:w-auto sm:px-5 sm:py-3.5"
+          id="whatsapp-floating-button"
+          className={`group fixed right-4 z-40 flex h-[52px] w-[52px] items-center justify-center gap-2 rounded-full bg-[#1fbd5c] text-white shadow-[0_16px_34px_-14px_rgba(31,189,92,.7)] transition-[bottom,transform,background-color,box-shadow] duration-300 hover:-translate-y-1 hover:bg-[#19a950] hover:shadow-xl sm:right-6 sm:h-auto sm:w-auto sm:px-5 sm:py-3.5 ${
+            stickyVisible
+              ? "bottom-[calc(6.25rem+env(safe-area-inset-bottom))] sm:bottom-24"
+              : "bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:bottom-6"
+          }`}
         >
           <MessageCircle className="h-6 w-6 fill-white stroke-white" />
           <span className="hidden text-sm font-semibold sm:inline">Chat with us</span>

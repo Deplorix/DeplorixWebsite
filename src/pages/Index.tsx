@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import DeferredSection from "@/components/DeferredSection";
 import Seo from "@/components/Seo";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const AboutSection = lazy(() => import("@/components/AboutSection"));
 const ServicesSection = lazy(() => import("@/components/ServicesSection"));
@@ -16,7 +17,6 @@ const ProjectAdvisor = lazy(() => import("@/components/ProjectAdvisor"));
 const ContactSection = lazy(() => import("@/components/ContactSection"));
 const Footer = lazy(() => import("@/components/Footer"));
 const StickyContactBar = lazy(() => import("@/components/StickyContactBar"));
-const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 
 const PAGE_SEO: Record<
   string,
@@ -264,7 +264,6 @@ const IdleEnhancements = () => {
   return (
     <Suspense fallback={null}>
       <StickyContactBar />
-      <WhatsAppButton />
     </Suspense>
   );
 };
@@ -296,6 +295,7 @@ const Index = () => {
         <DeferredSection sectionId="contact" minHeight="1200px" tabletMinHeight="1650px" mobileMinHeight="1970px"><ContactSection /></DeferredSection>
       </main>
       <DeferredSection minHeight="420px" rootMargin="900px 0px"><Footer /></DeferredSection>
+      <WhatsAppButton />
       <IdleEnhancements />
     </div>
   );

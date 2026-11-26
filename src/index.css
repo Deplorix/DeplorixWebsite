@@ -181,6 +181,14 @@
     background-image: var(--gradient-brand);
   }
 
+  .bg-fyp-gradient {
+    background-color: hsl(244 35% 16%);
+    background-image:
+      radial-gradient(circle at 88% 10%, hsl(270 88% 63% / 0.58), transparent 42%),
+      radial-gradient(circle at 8% 100%, hsl(254 92% 62% / 0.38), transparent 48%),
+      linear-gradient(135deg, hsl(240 30% 13%) 0%, hsl(252 45% 23%) 52%, hsl(265 53% 31%) 100%);
+  }
+
   /* Floating UI card */
   .float-card {
     @apply bg-card/95 rounded-2xl border border-white;

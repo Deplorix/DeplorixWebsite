@@ -43,7 +43,7 @@ const FYPSection = () => {
     <section id="fyp" className="section-padding scroll-mt-24 bg-background md:scroll-mt-28">
       <div className="site-container">
         <AnimatedSection className="grid gap-8 xl:grid-cols-[.88fr_1.12fr] xl:gap-12">
-          <div className="relative overflow-hidden rounded-[1.75rem] bg-brand-gradient p-5 text-white shadow-[var(--shadow-brand)] sm:rounded-[2rem] sm:p-9 md:rounded-[2.5rem] lg:p-11">
+          <div className="relative overflow-hidden rounded-[1.75rem] bg-fyp-gradient p-5 text-white shadow-[var(--shadow-brand)] sm:rounded-[2rem] sm:p-9 md:rounded-[2.5rem] lg:p-11">
             <div className="absolute inset-0 bg-grid-accent opacity-45" aria-hidden />
             <div className="absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-white/20 blur-3xl" aria-hidden />
             <div className="relative">
