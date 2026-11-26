@@ -4,6 +4,18 @@
   "framework": "vite",
   "rewrites": [
     {
+      "source": "/api/internship/apply",
+      "destination": "/api/internship/apply"
+    },
+    {
+      "source": "/api/intenship/apply",
+      "destination": "/api/internship/apply"
+    },
+    {
+      "source": "/api/internships/apply",
+      "destination": "/api/internship/apply"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/:path*"
     },

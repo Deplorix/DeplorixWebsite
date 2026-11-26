@@ -121,13 +121,15 @@ export interface SubmittedEnrollmentData {
 }
 
 interface InternshipEnrollmentDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  embedded?: boolean;
 }
 
 export const InternshipEnrollmentDialog: React.FC<InternshipEnrollmentDialogProps> = ({
   open,
   onOpenChange,
+  embedded = false,
 }) => {
   // Form fields
   const [fullName, setFullName] = useState("");
@@ -787,7 +789,9 @@ export const InternshipEnrollmentDialog: React.FC<InternshipEnrollmentDialogProp
     };
 
     const handleClose = () => {
-      onOpenChange(false);
+      if (onOpenChange) {
+        onOpenChange(false);
+      }
       setTimeout(() => {
         setSubmittedData(null);
         setErrors({});
@@ -795,14 +799,9 @@ export const InternshipEnrollmentDialog: React.FC<InternshipEnrollmentDialogProp
       }, 250);
     };
 
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl w-[96vw] sm:w-[92vw] md:w-[88vw] max-h-[92vh] p-0 overflow-y-auto rounded-3xl border border-border/80 bg-background shadow-2xl">
-          <DialogTitle className="sr-only" id={titleId}>
-            Student & Internship Enrollment — DeploriX Technologies
-          </DialogTitle>
-
-          {/* Confirmation / Receipt View */}
+    const formContent = (
+      <>
+        {/* Confirmation / Receipt View */}
           {submittedData ? (
             <div className="p-4 sm:p-7 md:p-9 space-y-6 animate-in fade-in zoom-in-95 duration-200">
               {/* Confirmation Banner */}
@@ -1782,6 +1781,24 @@ export const InternshipEnrollmentDialog: React.FC<InternshipEnrollmentDialogProp
               {toastMessage}
             </div>
           )}
+      </>
+    );
+
+    if (embedded) {
+      return (
+        <div className="w-full max-w-4xl mx-auto rounded-3xl border border-border/80 bg-background shadow-2xl p-0 overflow-hidden">
+          {formContent}
+        </div>
+      );
+    }
+
+    return (
+      <Dialog open={open ?? false} onOpenChange={onOpenChange ?? (() => {})}>
+        <DialogContent className="max-w-4xl w-[96vw] sm:w-[92vw] md:w-[88vw] max-h-[92vh] p-0 overflow-y-auto rounded-3xl border border-border/80 bg-background shadow-2xl">
+          <DialogTitle className="sr-only" id={titleId}>
+            Student & Internship Enrollment — DeploriX Technologies
+          </DialogTitle>
+          {formContent}
         </DialogContent>
       </Dialog>
     );

@@ -78,6 +78,20 @@ export function apiMiddlewarePlugin() {
             (url === "/api/internship" ||
               url === "/api/internship/apply" ||
               url === "/api/intenship/apply") &&
+            req.method === "GET"
+          ) {
+            return sendJson(res, 200, {
+              status: "ok",
+              endpoint: url,
+              description: "DeploriX Internship Application API",
+              methods: ["POST", "GET"],
+            });
+          }
+
+          if (
+            (url === "/api/internship" ||
+              url === "/api/internship/apply" ||
+              url === "/api/intenship/apply") &&
             req.method === "POST"
           ) {
             const body = await parseJsonBody(req);

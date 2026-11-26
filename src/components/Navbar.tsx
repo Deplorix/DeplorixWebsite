@@ -47,9 +47,6 @@ const INDEX_PATHS = new Set([
   "/contact",
   "/internship",
   "/internships",
-  "/internship/apply",
-  "/internships/apply",
-  "/intenship/apply",
 ]);
 
 const Navbar = () => {

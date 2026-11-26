@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 const Index = lazy(() => import("./pages/Index"));
 const Explore = lazy(() => import("./pages/Explore"));
 const Learn = lazy(() => import("./pages/Learn"));
+const InternshipApply = lazy(() => import("./pages/InternshipApply"));
 const DivisionWork = lazy(() => import("./pages/DivisionWork"));
 const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 const AdminAuth = lazy(() => import("./pages/AdminAuth"));
@@ -41,9 +42,6 @@ const RouteScrollManager = () => {
       "/contact": "contact",
       "/internship": "internship",
       "/internships": "internship",
-      "/internship/apply": "internship",
-      "/internships/apply": "internship",
-      "/intenship/apply": "internship",
     };
 
     const targetSection = sectionMap[pathname];
@@ -78,9 +76,9 @@ const App = () => (
             <Route path="/contact" element={<Index />} />
             <Route path="/internship" element={<Index />} />
             <Route path="/internships" element={<Index />} />
-            <Route path="/internship/apply" element={<Index />} />
-            <Route path="/internships/apply" element={<Index />} />
-            <Route path="/intenship/apply" element={<Index />} />
+            <Route path="/internship/apply" element={<InternshipApply />} />
+            <Route path="/internships/apply" element={<InternshipApply />} />
+            <Route path="/intenship/apply" element={<InternshipApply />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/learn" element={<Learn />} />
             <Route path="/work/:divisionId" element={<DivisionWork />} />

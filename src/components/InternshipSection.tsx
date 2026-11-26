@@ -41,35 +41,21 @@ const InternshipSection = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const isApplyPath =
-        location.pathname === "/internship/apply" ||
-        location.pathname === "/internships/apply" ||
-        location.pathname === "/intenship/apply";
       const searchParams = new URLSearchParams(location.search);
       const isApplyQuery = searchParams.get("apply") === "true" || window.location.hash === "#apply";
 
-      if (isApplyPath || isApplyQuery) {
-        setDialogOpen(true);
+      if (isApplyQuery) {
+        navigate("/internship/apply");
       }
     }
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, navigate]);
 
   const handleOpenApply = () => {
-    setDialogOpen(true);
     navigate("/internship/apply");
   };
 
   const handleDialogChange = (open: boolean) => {
     setDialogOpen(open);
-    if (!open) {
-      const isApplyPath =
-        location.pathname === "/internship/apply" ||
-        location.pathname === "/internships/apply" ||
-        location.pathname === "/intenship/apply";
-      if (isApplyPath) {
-        navigate("/internship", { replace: true });
-      }
-    }
   };
 
   return (

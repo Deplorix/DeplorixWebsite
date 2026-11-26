@@ -70,6 +70,18 @@ const handleInternshipApply = async (req, res) => {
   }
 };
 
+const handleInternshipGet = (req, res) => {
+  res.json({
+    status: "ok",
+    endpoint: req.path,
+    description: "DeploriX Internship Application API",
+    methods: ["POST", "GET"],
+  });
+};
+
+app.get("/api/internship/apply", handleInternshipGet);
+app.get("/api/internship", handleInternshipGet);
+app.get("/api/intenship/apply", handleInternshipGet);
 app.post("/api/internship/apply", handleInternshipApply);
 app.post("/api/internship", handleInternshipApply);
 app.post("/api/intenship/apply", handleInternshipApply);
